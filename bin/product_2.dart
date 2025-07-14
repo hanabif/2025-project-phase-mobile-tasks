@@ -1,15 +1,27 @@
 import 'dart:io';
 
 class Product {
-  String name;
-  String description;
-  double price;
+  String _name;
+  String _description;
+  double _price;
+  bool _available;
 
-  Product(this.name, this.description, this.price);
+  Product(this._name, this._description, this._price, {bool available = true})
+    : _available = available;
+
+  String get name => _name;
+  String get description => _description;
+  double get price => _price;
+  bool get available => _available;
+
+  set name(String name) => _name = name;
+  set description(String description) => _description = description;
+  set price(double price) => _price = price;
+  set available(bool value) => _available = value;
 
   @override
   String toString() {
-    return 'Name: $name\nDescription: $description\nPrice: \$${price.toStringAsFixed(2)}';
+    return 'Name: $_name\nDescription: $_description\nPrice: \$${_price.toStringAsFixed(2)}\nAvailable: ${_available ? "Yes" : "No"}';
   }
 }
 
@@ -17,15 +29,18 @@ class ProductManager {
   final List<Product> _products = [];
 
   void addProduct() {
-    stdout.write('Enter product name: ');
-    String name = stdin.readLineSync()!;
-    stdout.write('Enter product description: ');
-    String description = stdin.readLineSync()!;
-    stdout.write('Enter product price: ');
-    double price = double.parse(stdin.readLineSync()!);
-
-    _products.add(Product(name, description, price));
-    print('\nProduct added successfully.\n');
+    try {
+      stdout.write('Enter product name: ');
+      String name = stdin.readLineSync()!;
+      stdout.write('Enter product description: ');
+      String description = stdin.readLineSync()!;
+      stdout.write('Enter product price: ');
+      double price = double.parse(stdin.readLineSync()!);
+      _products.add(Product(name, description, price));
+      print('\nProduct added successfully.\n');
+    } catch (e) {
+      print('Invalid input. Please try again.\n');
+    }
   }
 
   void viewAllProducts() {
@@ -40,9 +55,35 @@ class ProductManager {
     }
   }
 
+  void viewCompletedProducts() {
+    var availableProducts = _products
+        .where((p) => p.available)
+        .toList(growable: false);
+    if (availableProducts.isEmpty) {
+      print('\nNo available (completed) products.\n');
+      return;
+    }
+    for (var p in availableProducts) {
+      print('\n$p');
+    }
+  }
+
+  void viewPendingProducts() {
+    var pendingProducts = _products
+        .where((p) => !p.available)
+        .toList(growable: false);
+    if (pendingProducts.isEmpty) {
+      print('\nNo pending products.\n');
+      return;
+    }
+    for (var p in pendingProducts) {
+      print('\n$p');
+    }
+  }
+
   void viewProduct() {
     stdout.write('Enter product ID to view: ');
-    int id = int.parse(stdin.readLineSync()!);
+    int id = int.tryParse(stdin.readLineSync()!) ?? -1;
     if (_isValidId(id)) {
       print('\nProduct Details:');
       print(_products[id]);
@@ -53,7 +94,7 @@ class ProductManager {
 
   void editProduct() {
     stdout.write('Enter product ID to edit: ');
-    int id = int.parse(stdin.readLineSync()!);
+    int id = int.tryParse(stdin.readLineSync()!) ?? -1;
     if (_isValidId(id)) {
       stdout.write('Enter new name: ');
       _products[id].name = stdin.readLineSync()!;
@@ -61,6 +102,9 @@ class ProductManager {
       _products[id].description = stdin.readLineSync()!;
       stdout.write('Enter new price: ');
       _products[id].price = double.parse(stdin.readLineSync()!);
+      stdout.write('Is the product available? (yes/no): ');
+      String status = stdin.readLineSync()!.toLowerCase();
+      _products[id].available = status == 'yes';
       print('\nProduct updated successfully.\n');
     } else {
       print('\nInvalid product ID.\n');
@@ -69,7 +113,7 @@ class ProductManager {
 
   void deleteProduct() {
     stdout.write('Enter product ID to delete: ');
-    int id = int.parse(stdin.readLineSync()!);
+    int id = int.tryParse(stdin.readLineSync()!) ?? -1;
     if (_isValidId(id)) {
       _products.removeAt(id);
       print('\nProduct deleted successfully.\n');
@@ -92,9 +136,11 @@ Simple eCommerce App
 1. Add Product
 2. View All Products
 3. View Product by ID
-4. Edit Product
-5. Delete Product
-6. Exit
+4. View Available Products (Completed)
+5. View Unavailable Products (Pending)
+6. Edit Product
+7. Delete Product
+8. Exit
 ''');
     stdout.write('Choose an option: ');
     String choice = stdin.readLineSync()!;
@@ -109,16 +155,22 @@ Simple eCommerce App
         manager.viewProduct();
         break;
       case '4':
-        manager.editProduct();
+        manager.viewCompletedProducts();
         break;
       case '5':
-        manager.deleteProduct();
+        manager.viewPendingProducts();
         break;
       case '6':
-        print('Exiting the app. Goodbye.');
+        manager.editProduct();
+        break;
+      case '7':
+        manager.deleteProduct();
+        break;
+      case '8':
+        print('Exiting the app.');
         return;
       default:
-        print('Invalid option. Please try again.');
+        print('Invalid option. Please try again.\n');
     }
   }
 }
