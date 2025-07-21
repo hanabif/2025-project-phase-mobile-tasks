@@ -1,16 +1,42 @@
-# haymanot_aweke
+# eCommerce UI Flutter App
 
-A new Flutter project.
+## Overview
 
-## Getting Started
+This is a simple eCommerce mobile app built with Flutter. The app allows users to:
 
-This project is a starting point for a Flutter application.
+- View a list of luxury women's high heel products
+- Add new products with title, description, and price
+- Edit or delete existing products
+- View product details
+- Search for products (UI only)
+- Enjoy smooth animated transitions between screens
 
-A few resources to get you started if this is your first Flutter project:
+## Features
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- Modern, clean UI with custom fonts and images
+- Product add/edit forms with validation
+- Animated navigation transitions (fade effect)
+- Product details and search UI
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## How to Run the App
+
+1. **Clone the repository**
+2. **Install Flutter** (if not already installed):
+   - https://docs.flutter.dev/get-started/install
+3. **Install dependencies:**
+   - Run `flutter pub get` in the project directory
+4. **Run the app:**
+   - Use `flutter run` or your preferred IDE (VS Code, Android Studio)
+
+## Notes
+
+- All product images are stored in `assets/images/`.
+- The app uses a static in-memory product list for demonstration. No backend or persistent storage is included.
+- The search page currently displays all products for UI demonstration purposes.
+- The app is designed for learning and demonstration purposes.
+
+## Reviewer Information
+
+- The code is organized by feature (pages, models, widgets).
+- Animations are implemented using `PageRouteBuilder` for a smooth user experience.
+- For any questions or issues, please check the code comments or contact the author.
