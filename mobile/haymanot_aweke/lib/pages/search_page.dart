@@ -20,7 +20,7 @@ class SearchPage extends StatelessWidget {
                 children: [
                   SizedBox(height: 16),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       IconButton(
                         onPressed: () {
@@ -78,6 +78,7 @@ class SearchPage extends StatelessWidget {
                   SizedBox(height: 36),
                   Expanded(
                     child: ListView.builder(
+                      itemCount: searchResults.length,
                       itemBuilder: (context, index) {
                         return Padding(
                           padding: EdgeInsets.only(bottom: 16),
@@ -146,7 +147,12 @@ class SearchPage extends StatelessWidget {
                         inactiveTrackColor: Color(0xFFD9D9D9),
                         thumbColor: Color(0xFF3D4CE0),
                       ),
-                      child: Slider(value: 50, onChanged: (value) {}),
+                      child: Slider(
+                        value: 50,
+                        min: 0,
+                        max: 100,
+                        onChanged: (value) {},
+                      ),
                     ),
                     SizedBox(height: 16),
                     Center(
