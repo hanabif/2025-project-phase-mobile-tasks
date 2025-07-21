@@ -1,7 +1,8 @@
 class Product {
   static const defaultSizes = [39, 40, 41, 42, 43];
 
-  final String name;
+  final String id;
+  final String title;
   final String category;
   final double price;
   final String imageUrl;
@@ -9,11 +10,12 @@ class Product {
   final String description;
 
   Product({
-    required this.name,
+    String? id,
+    required this.title,
     required this.category,
     required this.price,
     required this.imageUrl,
     this.sizes = defaultSizes,
     required this.description,
-  });
+  }) : id = id ?? DateTime.now().millisecondsSinceEpoch.toString();
 }

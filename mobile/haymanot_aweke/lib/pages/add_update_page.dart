@@ -1,10 +1,61 @@
 import 'package:flutter/material.dart';
+import 'package:haymanot_aweke/models/product.dart';
 
-class AddUpdatePage extends StatelessWidget {
-  const AddUpdatePage({super.key});
+class AddUpdatePage extends StatefulWidget {
+  final Product? product;
+  const AddUpdatePage({Key? key, this.product}) : super(key: key);
+
+  @override
+  State<AddUpdatePage> createState() => _AddUpdatePageState();
+}
+
+class _AddUpdatePageState extends State<AddUpdatePage> {
+  late TextEditingController _titleController;
+  late TextEditingController _descriptionController;
+  late TextEditingController _priceController;
+
+  @override
+  void initState() {
+    super.initState();
+    _titleController = TextEditingController(text: widget.product?.title ?? '');
+    _descriptionController = TextEditingController(
+      text: widget.product?.description ?? '',
+    );
+    _priceController = TextEditingController(
+      text:
+          widget.product?.price != null ? widget.product!.price.toString() : '',
+    );
+  }
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _descriptionController.dispose();
+    _priceController.dispose();
+    super.dispose();
+  }
+
+  void _saveProduct() {
+    final title = _titleController.text.trim();
+    final description = _descriptionController.text.trim();
+    final priceText = _priceController.text.trim();
+    if (title.isEmpty || description.isEmpty || priceText.isEmpty) return;
+    final price = double.tryParse(priceText);
+    if (price == null) return;
+    final product = Product(
+      id: widget.product?.id,
+      title: title,
+      description: description,
+      price: price,
+      category: "women's high heels",
+      imageUrl: widget.product?.imageUrl ?? "assets/images/carbon_image.png",
+    );
+    Navigator.pop(context, product);
+  }
 
   @override
   Widget build(BuildContext context) {
+    final isEditing = widget.product != null;
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -13,7 +64,10 @@ class AddUpdatePage extends StatelessWidget {
           },
           icon: Icon(Icons.arrow_back_ios, color: Color(0xFF3F51F3)),
         ),
-        title: Text("Add Product", textAlign: TextAlign.center),
+        title: Text(
+          isEditing ? "Edit Product" : "Add Product",
+          textAlign: TextAlign.center,
+        ),
       ),
       body: Padding(
         padding: EdgeInsets.symmetric(vertical: 23, horizontal: 32),
@@ -29,7 +83,7 @@ class AddUpdatePage extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Image.network(
+                  Image.asset(
                     "assets/images/carbon_image.png",
                     height: 36,
                     width: 36,
@@ -48,7 +102,7 @@ class AddUpdatePage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "name",
+                  "Title",
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
                 ),
                 SizedBox(height: 8),
@@ -59,6 +113,7 @@ class AddUpdatePage extends StatelessWidget {
                   ),
                   padding: EdgeInsets.symmetric(horizontal: 12),
                   child: TextField(
+                    controller: _titleController,
                     decoration: InputDecoration(
                       border: InputBorder.none,
                       enabledBorder: InputBorder.none,
@@ -67,8 +122,10 @@ class AddUpdatePage extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: 16),
+
+                // Price field
                 Text(
-                  "category",
+                  "Price",
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
                 ),
                 SizedBox(height: 8),
@@ -79,31 +136,14 @@ class AddUpdatePage extends StatelessWidget {
                   ),
                   padding: EdgeInsets.symmetric(horizontal: 12),
                   child: TextField(
+                    controller: _priceController,
+                    keyboardType: TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
                     decoration: InputDecoration(
-                      filled: true,
-                      fillColor: Color(0xFFF3F3F3),
                       border: InputBorder.none,
                       enabledBorder: InputBorder.none,
                       focusedBorder: InputBorder.none,
-                    ),
-                  ),
-                ),
-                SizedBox(height: 16),
-                Text(
-                  "price",
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-                ),
-                SizedBox(height: 8),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  padding: EdgeInsets.symmetric(horizontal: 12),
-                  child: TextField(
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: Color(0xFFF3F3F3),
                       suffix: Text(
                         "\$",
                         style: TextStyle(
@@ -111,15 +151,13 @@ class AddUpdatePage extends StatelessWidget {
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-                      border: InputBorder.none,
-                      enabledBorder: InputBorder.none,
-                      focusedBorder: InputBorder.none,
                     ),
                   ),
                 ),
                 SizedBox(height: 16),
+                // Description field
                 Text(
-                  "description",
+                  "Description",
                   style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
                 ),
                 SizedBox(height: 8),
@@ -132,6 +170,8 @@ class AddUpdatePage extends StatelessWidget {
                   width: double.infinity,
                   height: 140,
                   child: TextField(
+                    controller: _descriptionController,
+                    maxLines: null,
                     decoration: InputDecoration(
                       filled: true,
                       fillColor: Color(0xFFF3F3F3),
@@ -157,9 +197,9 @@ class AddUpdatePage extends StatelessWidget {
                       ),
                       elevation: 0,
                     ),
-                    onPressed: () {},
+                    onPressed: _saveProduct,
                     child: Text(
-                      "ADD",
+                      isEditing ? "UPDATE" : "ADD",
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
@@ -167,27 +207,31 @@ class AddUpdatePage extends StatelessWidget {
                     ),
                   ),
                 ),
-                SizedBox(height: 16),
-                Container(
-                  width: 360,
-                  child: OutlinedButton(
-                    onPressed: () {},
-                    style: OutlinedButton.styleFrom(
-                      side: BorderSide(color: Colors.red, width: 1),
-                      foregroundColor: Colors.red,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+                if (isEditing) ...[
+                  SizedBox(height: 16),
+                  Container(
+                    width: 360,
+                    child: OutlinedButton(
+                      onPressed: () {
+                        Navigator.pop(context, null);
+                      },
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(color: Colors.red, width: 1),
+                        foregroundColor: Colors.red,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                       ),
-                    ),
-                    child: Text(
-                      "DELETE",
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
+                      child: Text(
+                        "DELETE",
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ),
-                ),
+                ],
               ],
             ),
           ],

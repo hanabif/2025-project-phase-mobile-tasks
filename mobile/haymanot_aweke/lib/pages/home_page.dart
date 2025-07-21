@@ -1,13 +1,18 @@
+// ignore_for_file: non_constant_identifier_names
+
 import 'package:flutter/material.dart';
 import 'package:haymanot_aweke/models/product.dart';
+import 'package:haymanot_aweke/pages/search_page.dart';
 import 'package:haymanot_aweke/widgets/product_card.dart';
 
+import 'add_update_page.dart';
+
 class HomePage extends StatelessWidget {
-  HomePage({super.key});
+  HomePage({Key? key}) : super(key: key);
 
   final List<Product> products = [
     Product(
-      name: "Christian Louboutin",
+      title: "Christian Louboutin",
       category: "Women's high heels",
       price: 1000,
       imageUrl: "assets/images/Louboutin.jpg",
@@ -15,7 +20,7 @@ class HomePage extends StatelessWidget {
           "Christian Louboutin heels are handcrafted in Italy using premium Nappa leather, patent calfskin, or suede. Each pair is meticulously constructed for comfort and style, with leather linings and padded insoles. Their signature glossy red lacquered soles are more than a brand mark — they’re a symbol of confidence and sensuality. From stiletto pumps to ankle boots, Louboutin shoes blend Parisian elegance with Italian craftsmanship.",
     ),
     Product(
-      name: "Mach & Mach",
+      title: "Mach & Mach",
       category: "Women's high heels",
       price: 950,
       imageUrl: "assets/images/Mach & Mach.jpg",
@@ -23,7 +28,7 @@ class HomePage extends StatelessWidget {
           "Mach & Mach shoes are known for their signature double-bow crystal embellishments. Made from lustrous satin, Italian leather soles, and hand-applied rhinestones, these heels are designed to dazzle. The pointed-toe silhouette with ankle straps ensures a secure fit, while the soft leather lining provides all-night comfort. Each piece is a blend of Caucasus heritage and futuristic femininity, making them perfect for modern luxury seekers.",
     ),
     Product(
-      name: "Yves Saint Laurent",
+      title: "Yves Saint Laurent",
       category: "Women's high heels",
       price: 980,
       imageUrl: "assets/images/Ysl heels.jpg",
@@ -31,7 +36,7 @@ class HomePage extends StatelessWidget {
           "Saint Laurent shoes reflect bold minimalism and rock-chic glamour. Crafted from Italian calf leather, patent leather, or exotic skins like python or croc-embossed materials, they are sculptural yet sleek. Many heels feature metal YSL monograms, angular shapes, and lacquered finishes. Inside, smooth leather lining and insoles ensure a luxe feel, while leather outsoles offer durability. A staple in edgy, upscale wardrobes.",
     ),
     Product(
-      name: "Miu Miu",
+      title: "Miu Miu",
       category: "Women's high heels",
       price: 980,
       imageUrl: "assets/images/Miu Miu.jpg",
@@ -39,10 +44,10 @@ class HomePage extends StatelessWidget {
           "A playful sub-brand of Prada, Miu Miu designs footwear that blends soft lambskin leather, velvet, or satin uppers with youthful, rebellious energy. Their shoes often feature chunky soles, glitter finishes, or oversized embellishments like crystals or bows. Designed and made in Italy, Miu Miu heels and loafers use rubber or leather soles and cushioned insoles for comfort. Ideal for those who want fashion-forward luxury with a twist.",
     ),
     Product(
-      name: "Christian Dior",
+      title: "Christian Dior",
       category: "Women's high heels",
       price: 990,
-      imageUrl: "asstes/images/Dior shoes.jpg",
+      imageUrl: "assets/images/Dior.jpg",
       description:
           "Dior shoes combine Haute Couture heritage with innovation. Made from calfskin, mesh, embroidered canvas, or technical fabric, Dior footwear is often decorated with embroidered logos, bows, or straps reading J’adior. Dior artisans assemble each piece with hand-stitched details and top-grade leather soles. Whether it’s the Dior-ID sneakers or slingback heels, the focus is always on femininity, craftsmanship, and Parisian prestige.",
     ),
@@ -53,8 +58,8 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.pushNamed(context, '/add');
+        onPressed: () async {
+          final result = await _navigateWithFade(context, AddUpdatePage());
         },
         backgroundColor: Color(0xFF3F51F3),
         child: Icon(Icons.add, size: 36, color: Colors.white),
@@ -67,7 +72,14 @@ class HomePage extends StatelessWidget {
             children: [
               Header(),
               SizedBox(height: 38),
-              Title(),
+              Title(
+                onSearch: () {
+                  _navigateWithFade(
+                    context,
+                    SearchPage(searchResults: products),
+                  );
+                },
+              ),
               SizedBox(height: 22),
               Expanded(
                 child: ListView.separated(
@@ -75,7 +87,7 @@ class HomePage extends StatelessWidget {
                   separatorBuilder: (context, index) => SizedBox(height: 16),
                   itemBuilder: (context, index) {
                     return GestureDetector(
-                      onTap: () {
+                      onTap: () async {
                         Navigator.pushNamed(
                           context,
                           "/details",
@@ -90,6 +102,18 @@ class HomePage extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Future<T?> _navigateWithFade<T>(BuildContext context, Widget page) {
+    return Navigator.of(context).push<T>(
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => page,
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(opacity: animation, child: child);
+        },
+        transitionDuration: Duration(milliseconds: 400),
       ),
     );
   }
@@ -138,7 +162,7 @@ class Header extends StatelessWidget {
             ),
           ],
         ),
-        SizedBox(width: 130),
+        SizedBox(width: 150),
         Stack(
           alignment: AlignmentDirectional.topEnd,
           children: [
@@ -166,7 +190,8 @@ class Header extends StatelessWidget {
 
 //title
 class Title extends StatelessWidget {
-  const Title({super.key});
+  final VoidCallback onSearch;
+  const Title({super.key, required this.onSearch});
 
   @override
   Widget build(BuildContext context) {
@@ -187,10 +212,8 @@ class Title extends StatelessWidget {
           width: 40,
           padding: EdgeInsets.all(8),
           child: IconButton(
-            onPressed: () {
-              Navigator.pushNamed(context, "/search");
-            },
-            icon: Icon(Icons.search_outlined, size: 24,),
+            onPressed: onSearch,
+            icon: Icon(Icons.search_outlined, size: 24),
           ),
         ),
       ],

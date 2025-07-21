@@ -35,8 +35,16 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => HomePage(),
         '/details': (context) {
-          final product = ModalRoute.of(context)!.settings.arguments as Product;
-          return DetailPage(product: product);
+          final args = ModalRoute.of(context)!.settings.arguments;
+
+          
+          if (args is Product) {
+            return DetailPage(product: args);
+          } else {
+            return Scaffold(
+              body: Center(child: Text('No product found or passed.')),
+            );
+          }
         },
         '/add': (context) => AddUpdatePage(),
         '/search': (context) => SearchPage(searchResults: []),

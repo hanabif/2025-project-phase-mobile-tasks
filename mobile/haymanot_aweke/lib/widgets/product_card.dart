@@ -45,7 +45,7 @@ class ProductCard extends StatelessWidget {
               Column(
                 children: [
                   Text(
-                    product.name,
+                    product.title,
                     style: TextStyle(
                       fontWeight: FontWeight.w500,
                       fontSize: 20,
