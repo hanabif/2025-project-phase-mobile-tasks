@@ -14,13 +14,17 @@ dependencies:
     sdk: flutter
 
   cupertino_icons: ^1.0.8
+  equatable: ^2.0.7 
+  dartz: ^0.10.1
+  
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  lints: ^6.0.0
-
+  lints: ^5.0.0
+  mockito: ^5.5.0
+  build_runner: ^2.6.0
 
 flutter:
 
