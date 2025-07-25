@@ -53,7 +53,17 @@ test/
 ---
 ## :camera: Screenshots
 
+### :house: Home Page
+![Home Page](assets/screenshots/home.png)
 
+### :bookmark_tabs: Detail Page
+![Detail Page](assets/screenshots/detail.png)
+
+### ➕ Update Page
+![Update Page](assets/screenshots/add.png)
+
+### 🔍 Search Page
+![Search Page](assets/screenshots/search.png)
 
 ## 🚀 Getting Started
 
