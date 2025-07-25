@@ -1,16 +1,110 @@
-# haymanot_aweke
 
-A new Flutter project.
+# :iphone: Flutter E-Commerce App (Clean Architecture)
 
-## Getting Started
+A well-organized and modern E-Commerce product management application developed with Flutter, following Clean Architecture principles. It allows users to browse, add, edit, and remove products through a user-friendly interface enhanced with smooth animations.
 
-This project is a starting point for a Flutter application.
+---
 
-A few resources to get you started if this is your first Flutter project:
+## :fleur_de_lis: Main Features
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- 📦 Browse all listed products 
+- ✏️ Modify information of existing products
+- 🔍 Access comprehensive product details, including size options 
+- 🗑️ Delete products  
+- ➕ Create new products with details like name, category, price, and description
+ 
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+---
+
+## :building_construction: Architecture
+
+
+
+```
+lib/
+├── core/                       # error,constances and other common 
+├── features/
+│   └── product/
+│       ├── data/              # Data layer (models, datasources, repositories implementation)
+│       ├── domain/            # Domain layer (entities, repository abstract classes, use cases)
+│       └── presentation/      # Presentation layer (UI screens, widgets, blocs/cubits/providers)
+|__ models                     # will be included under the presentation layer soon
+|__ pages                      # will be included under the presentation layer soon
+|__ widgets                    # will be included under the presentation layer soon
+└── main.dart                  # App entry point and routing
+```
+
+---
+
+## 📂 Test folder Structure
+
+The `test/` directory mirrors the `lib/` structure for easy unit and widget testing:
+
+```
+test/
+└── features/
+    └── product/
+        ├── data/
+        ├── domain/
+        └── presentation/
+    └── fixtures
+```
+
+---
+## :camera: Screenshots
+
+
+
+## 🚀 Getting Started
+
+### ✅ Prerequisites
+
+- Flutter SDK: Install Flutter  
+- IDE: VS Code / Android Studio  
+- Android/iOS emulator or real device  
+
+### 🛠️ Installation
+
+Clone the repository and run the app:
+
+```bash
+# Clone this repository
+git clone https://github.com/hanabif/2025-project-phase-mobile-tasks/tree/main/mobile/haymanot_aweke
+
+# Go into the project folder
+cd mobile
+cd haymanot_aweke
+
+# Install dependencies
+flutter pub get
+
+# Run the app
+flutter run
+```
+
+---
+
+## ✅ Testing
+
+Run all tests:
+
+```bash
+flutter test
+```
+
+Test files are organized using the same structure as the `lib/` directory to ensure alignment and clarity.
+
+---
+
+## 🧩 Technologies Used
+
+- 🧱 Flutter  
+- 🗺 Clean Architecture  
+- 💡 Provider  
+- 🧪 flutter_test & mockito (for testing)  
+
+---
+
+## 🤝 Contributing
+
+Feel free to open issues or submit pull requests. Contributions are welcome!
