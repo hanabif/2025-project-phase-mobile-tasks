@@ -52,7 +52,7 @@ test/
 
 ---
 ## :camera: Screenshots
-## 📸 Screenshots
+
 
 <table>
   <tr>
