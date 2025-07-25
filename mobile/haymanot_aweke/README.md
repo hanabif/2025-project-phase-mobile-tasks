@@ -52,18 +52,23 @@ test/
 
 ---
 ## :camera: Screenshots
+## 📸 Screenshots
 
-### :house: Home Page
-![Home Page](assets/screenshots/home.png)
+<table>
+  <tr>
+    <th>🏠 Home Page</th>
+    <th>📄 Detail Page</th>
+    <th>➕ Update Page</th>
+    <th>🔍 Search Page</th>
+  </tr>
+  <tr>
+    <td><img src="assets/screenshots/home.png" alt="Home Page" width="200"/></td>
+    <td><img src="assets/screenshots/detail.png" alt="Detail Page" width="200"/></td>
+    <td><img src="assets/screenshots/add.png" alt="Update Page" width="200"/></td>
+    <td><img src="assets/screenshots/search.png" alt="Search Page" width="200"/></td>
+  </tr>
+</table>
 
-### :bookmark_tabs: Detail Page
-![Detail Page](assets/screenshots/detail.png)
-
-### ➕ Update Page
-![Update Page](assets/screenshots/add.png)
-
-### 🔍 Search Page
-![Search Page](assets/screenshots/search.png)
 
 ## 🚀 Getting Started
 
