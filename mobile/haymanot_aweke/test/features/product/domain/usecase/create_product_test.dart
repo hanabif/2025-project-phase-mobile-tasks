@@ -2,9 +2,9 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:haymanot_aweke/features/product/domain/entities/product.dart';
 import 'package:haymanot_aweke/features/product/domain/repositories/product_repository.dart';
+import 'package:haymanot_aweke/features/product/domain/usecases/create_product.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:haymanot_aweke/features/product/domain/usecases/create_product.dart';
 
 import 'create_product_test.mocks.dart';
 
