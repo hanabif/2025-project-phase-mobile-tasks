@@ -37,9 +37,18 @@ class ProductRepositoryImpl implements ProductRepository {
   }
 
   @override
-  Future<Either<Failure, Unit>> deleteProduct(String id) {
-    // TODO: implement deleteProduct
-    throw UnimplementedError();
+  Future<Either<Failure, Unit>> deleteProduct(String id) async {
+    if (await networkInfo.isConnected) {
+      try {
+        await remoteDataSource.deleteProduct(id);
+        await localDataSource.deleteProduct(id);
+        return const Right(unit);
+      } on ServerException {
+        return Left(ServerFailure());
+      }
+    } else {
+      return Left(NetworkFailure());
+    }
   }
 
   @override
@@ -83,8 +92,18 @@ class ProductRepositoryImpl implements ProductRepository {
   }
 
   @override
-  Future<Either<Failure, Unit>> updateProduct(Product product) {
-    // TODO: implement updateProduct
-    throw UnimplementedError();
+  Future<Either<Failure, Unit>> updateProduct(Product product) async {
+    if (await networkInfo.isConnected) {
+      try {
+        final model = ProductModel.fromEntity(product);
+        await remoteDataSource.updateProduct(model);
+        await localDataSource.cacheProduct(model);
+        return const Right(unit);
+      } on ServerException {
+        return Left(ServerFailure());
+      }
+    } else {
+      return Left(NetworkFailure());
+    }
   }
 }

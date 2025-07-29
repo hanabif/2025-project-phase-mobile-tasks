@@ -21,4 +21,7 @@ abstract class ProductLocalDataSource {
   ///
   /// Throws a [CacheException] if caching fails.
   Future<void> cacheProduct(ProductModel product);
+
+   /// Deletes a cached product by ID.
+  Future<void> deleteProduct(String id);
 }

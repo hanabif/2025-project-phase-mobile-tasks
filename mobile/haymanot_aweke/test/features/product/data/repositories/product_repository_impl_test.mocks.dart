@@ -142,6 +142,15 @@ class MockProductLocalDataSource extends _i1.Mock
             returnValueForMissingStub: _i4.Future<void>.value(),
           )
           as _i4.Future<void>);
+
+  @override
+  _i4.Future<void> deleteProduct(String? id) =>
+      (super.noSuchMethod(
+            Invocation.method(#deleteProduct, [id]),
+            returnValue: _i4.Future<void>.value(),
+            returnValueForMissingStub: _i4.Future<void>.value(),
+          )
+          as _i4.Future<void>);
 }
 
 /// A class which mocks [NetworkInfo].

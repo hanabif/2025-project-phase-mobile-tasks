@@ -364,4 +364,170 @@ void main() {
       });
     });
   });
+
+  group('deleteProduct', () {
+    final testId = "2";
+
+    test('should check if the device is online', () async {
+      // arrange
+      when(mockNetworkInfo.isConnected).thenAnswer((_) async => true);
+      when(
+        mockRemoteDataSource.deleteProduct(testId),
+      ).thenAnswer((_) async {});
+      when(
+        mockLocalDataSource.deleteProduct(testId),
+      ).thenAnswer((_) async {});
+
+      // act
+      await repository.deleteProduct(testId);
+
+      // assert
+      verify(mockNetworkInfo.isConnected);
+    });
+
+    group('device is online', () {
+      setUp(() {
+        when(mockNetworkInfo.isConnected).thenAnswer((_) async => true);
+      });
+
+      test(
+        'should delete a product from remote data source',
+        () async {
+          //arrange
+          when(
+            mockRemoteDataSource.deleteProduct(testId),
+          ).thenAnswer((_) async => Future.value());
+          when(
+            mockLocalDataSource.deleteProduct(testId),
+          ).thenAnswer((_) async => Future.value());
+          
+          //act
+          final result = await repository.deleteProduct(testId);
+          
+          //assert
+          verify(mockRemoteDataSource.deleteProduct(testId));
+          verify(mockLocalDataSource.deleteProduct(testId));
+          expect(result, equals(const Right(unit)));
+        },
+      );
+
+      test(
+        'should return ServerFailure when remote delete throws ServerException',
+        () async {
+          // arrange
+          when(
+            mockRemoteDataSource.deleteProduct(testId),
+          ).thenThrow(ServerException());
+
+          // act
+          final result = await repository.deleteProduct(testId);
+
+          // assert
+          verify(mockRemoteDataSource.deleteProduct(testId));
+          verifyZeroInteractions(mockLocalDataSource);
+          expect(result, equals(Left(ServerFailure())));
+        },
+      );
+    });
+
+    group('device is offline', () {
+      setUp(() {
+        when(mockNetworkInfo.isConnected).thenAnswer((_) async => false);
+      });
+
+      test('should return NetworkFailure when device is offline', () async {
+        // act
+        final result = await repository.deleteProduct(testId);
+
+        // assert
+        verifyZeroInteractions(mockRemoteDataSource);
+        verifyZeroInteractions(mockLocalDataSource);
+        expect(result, equals(Left(NetworkFailure())));
+      });
+    });
+  });
+
+  group('updateProduct', () {
+    final testProduct =  Product(
+      id: '1',
+      name: 'Updated Product',
+      imageUrl: 'https://example.com/image.png',
+      price: 59.99,
+      description: 'Updated description',
+    );
+    final testProductModel = ProductModel.fromEntity(testProduct);
+
+    test('should check if device is online', () async {
+      // arrange
+      when(mockNetworkInfo.isConnected).thenAnswer((_) async => true);
+      when(
+        mockRemoteDataSource.updateProduct(testProductModel),
+      ).thenAnswer((_) async => null);
+
+      // act
+      await repository.updateProduct(testProduct);
+
+      // assert
+      verify(mockNetworkInfo.isConnected);
+    });
+
+    group('device is online', () {
+      setUp(() {
+        when(mockNetworkInfo.isConnected).thenAnswer((_) async => true);
+      });
+
+      test(
+        'should update product on remote data source and cache locally',
+        () async {
+          // arrange
+          when(
+            mockRemoteDataSource.updateProduct(testProductModel),
+          ).thenAnswer((_) async => null);
+
+          // act
+          final result = await repository.updateProduct(testProduct);
+
+          // assert
+          verify(mockRemoteDataSource.updateProduct(testProductModel));
+          verify(mockLocalDataSource.cacheProduct(testProductModel));
+          expect(result, equals(const Right(unit)));
+        },
+      );
+
+      test(
+        'should return ServerFailure when remote update throws ServerException',
+        () async {
+          // arrange
+          when(
+            mockRemoteDataSource.updateProduct(testProductModel),
+          ).thenThrow(ServerException());
+
+          // act
+          final result = await repository.updateProduct(testProduct);
+
+          // assert
+          verify(mockRemoteDataSource.updateProduct(testProductModel));
+          verifyZeroInteractions(mockLocalDataSource);
+          expect(result, equals(Left(ServerFailure())));
+        },
+      );
+    });
+
+    group('device is offline', () {
+      setUp(() {
+        when(mockNetworkInfo.isConnected).thenAnswer((_) async => false);
+      });
+
+      test('should return NetworkFailure when device is offline', () async {
+        // act
+        final result = await repository.updateProduct(testProduct);
+
+        // assert
+        verifyZeroInteractions(mockRemoteDataSource);
+        verifyZeroInteractions(mockLocalDataSource);
+        expect(result, equals(Left(NetworkFailure())));
+      });
+    });
+  });
+
 }
