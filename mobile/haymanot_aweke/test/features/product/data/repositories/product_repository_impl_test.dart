@@ -2,7 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:haymanot_aweke/core/error/exceptions.dart';
 import 'package:haymanot_aweke/core/error/failure.dart';
-import 'package:haymanot_aweke/core/platform/network_info.dart';
+import 'package:haymanot_aweke/core/network/network_info.dart';
 import 'package:haymanot_aweke/features/product/data/datasources/product_local_data_source.dart';
 import 'package:haymanot_aweke/features/product/data/datasources/product_remote_data_source.dart';
 import 'package:haymanot_aweke/features/product/data/model/Product_model.dart';
@@ -448,7 +448,7 @@ void main() {
   });
 
   group('updateProduct', () {
-    final testProduct =  Product(
+    final testProduct =  Product( 
       id: '1',
       name: 'Updated Product',
       imageUrl: 'https://example.com/image.png',

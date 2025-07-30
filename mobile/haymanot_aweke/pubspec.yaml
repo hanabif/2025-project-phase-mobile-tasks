@@ -25,6 +25,13 @@ dev_dependencies:
   lints: ^5.0.0
   mockito: ^5.5.0
   build_runner: ^2.6.0
+  internet_connection_checker: ^3.0.1
+  equatable: ^2.0.7
+  http: ^1.4.0
+  shared_preferences: ^2.5.3
+  dartz: ^0.10.1
+  flutter_bloc: ^9.1.1
+  get_it: ^8.0.3
 
 flutter:
 

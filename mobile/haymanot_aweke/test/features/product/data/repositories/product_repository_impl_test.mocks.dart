@@ -5,7 +5,7 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _i4;
 
-import 'package:haymanot_aweke/core/platform/network_info.dart' as _i6;
+import 'package:haymanot_aweke/core/network/network_info.dart' as _i6;
 import 'package:haymanot_aweke/features/product/data/datasources/product_local_data_source.dart'
     as _i5;
 import 'package:haymanot_aweke/features/product/data/datasources/product_remote_data_source.dart'
