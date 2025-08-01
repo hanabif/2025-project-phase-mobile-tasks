@@ -22,16 +22,23 @@ A well-organized and modern E-Commerce product management application developed 
 
 ```
 lib/
-├── core/                       # error,constances and other common 
-├── features/
-│   └── product/
-│       ├── data/              # Data layer (models, datasources, repositories implementation)
-│       ├── domain/            # Domain layer (entities, repository abstract classes, use cases)
-│       └── presentation/      # Presentation layer (UI screens, widgets, blocs/cubits/providers)
-|__ models                     # will be included under the presentation layer soon
-|__ pages                      # will be included under the presentation layer soon
-|__ widgets                    # will be included under the presentation layer soon
-└── main.dart                  # App entry point and routing
+├── data/
+│   ├── models/          # Product model, response models
+│   ├── repositories/    # API service classes
+│   └── data_providers/  # HTTP client or database helper
+│
+├── domain/
+│   ├── entities/        # Core entities
+│   ├── use_cases/       # Business logic (get products, update, delete)
+│
+├── presentation/
+│   ├── pages/           # Full-screen pages (ProductListPage, ProductDetailPage, etc.)
+│   ├── widgets/         # Reusable widgets (ProductCard, ProductForm, etc.)
+│   └── utils/           # UI helpers, constants, formatters
+│
+└── main.dart
+
+
 ```
 
 ---
@@ -46,7 +53,6 @@ test/
     └── product/
         ├── data/
         ├── domain/
-        └── presentation/
     └── fixtures
 ```
 

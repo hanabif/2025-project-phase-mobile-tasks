@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:haymanot_aweke/models/product.dart';
-import 'pages/home_page.dart';
-import 'pages/detail_page.dart';
-import 'pages/add_update_page.dart';
-import 'pages/search_page.dart';
+import 'core/router/app_router.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -19,13 +16,13 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         scaffoldBackgroundColor: Colors.white,
         fontFamily: 'Poppins',
-        primarySwatch: MaterialColor(0xFF2196F3, <int, Color>{
+        primarySwatch: const MaterialColor(0xFF2196F3, {
           50: Color(0xFFE8E9FD),
           100: Color(0xFFC1C4FA),
           200: Color(0xFF969BF7),
           300: Color(0xFF6D72F4),
           400: Color(0xFF4E56F2),
-          500: Color(0xFF3F51F3), // your main color
+          500: Color(0xFF3F51F3),
           600: Color(0xFF3848EA),
           700: Color(0xFF2D3BCC),
           800: Color(0xFF252F9E),
@@ -33,15 +30,7 @@ class MyApp extends StatelessWidget {
         }),
       ),
       initialRoute: '/',
-      routes: {
-        '/': (context) => HomePage(),
-        '/details': (context) {
-          final product = ModalRoute.of(context)!.settings.arguments as Product;
-          return DetailPage(product: product);
-        },
-        '/add': (context) => AddUpdatePage(),
-        '/search': (context) => SearchPage(searchResults: []),
-      },
+      onGenerateRoute: AppRouter.generateRoute,
     );
   }
 }
