@@ -21,7 +21,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
+  get_it: ^8.1.0
   lints: ^5.0.0
   mockito: ^5.5.0
   build_runner: ^2.6.0
@@ -31,7 +31,7 @@ dev_dependencies:
   shared_preferences: ^2.5.3
   dartz: ^0.10.1
   flutter_bloc: ^9.1.1
-  get_it: ^8.0.3
+  
 
 flutter:
 
