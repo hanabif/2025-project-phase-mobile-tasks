@@ -1,13 +1,17 @@
 import 'package:dartz/dartz.dart';
 import '../../../../core/error/failure.dart';
+import '../../../../core/usecases/usecase_params.dart';
+import '../../../../core/usecases/usecases.dart';
 import '../entities/product.dart';
 import '../repositories/product_repository.dart';
 
-class ViewProductUsecase {
+class ViewProductUsecase extends UseCase<List<Product>, NoParams> {
   final ProductRepository repository;
 
-  ViewProductUsecase({required this.repository});
-  Future<Either<Failure,Product?>> call(String id){
-    return repository.getProductById(id);
+  ViewProductUsecase(this.repository);
+
+  @override
+  Future<Either<Failure, List<Product>>> call(NoParams params) async {
+    return await repository.getAllProducts();
   }
 }

@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:haymanot_aweke/core/usecases/usecase_params.dart';
 import 'package:haymanot_aweke/features/product/domain/entities/product.dart';
 import 'package:haymanot_aweke/features/product/domain/repositories/product_repository.dart';
 import 'package:haymanot_aweke/features/product/domain/usecases/create_product.dart';
@@ -35,7 +36,7 @@ void main() {
       ).thenAnswer((_) async => const Right(unit));
 
       //act
-      final result = await createProductUsecase(Params(testProduct));
+      final result = await createProductUsecase(ProductParams(testProduct));
 
       //assert
       expect(result, Right(testProduct));

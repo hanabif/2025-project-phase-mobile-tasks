@@ -55,20 +55,17 @@ class MockProductRepository extends _i1.Mock implements _i3.ProductRepository {
           as _i4.Future<_i2.Either<_i5.Failure, List<_i6.Product>>>);
 
   @override
-  _i4.Future<_i2.Either<_i5.Failure, _i6.Product?>> getProductById(
-    String? id,
-  ) =>
+  _i4.Future<_i2.Either<_i5.Failure, _i6.Product>> getProductById(String? id) =>
       (super.noSuchMethod(
             Invocation.method(#getProductById, [id]),
-            returnValue:
-                _i4.Future<_i2.Either<_i5.Failure, _i6.Product?>>.value(
-                  _FakeEither_0<_i5.Failure, _i6.Product?>(
-                    this,
-                    Invocation.method(#getProductById, [id]),
-                  ),
-                ),
+            returnValue: _i4.Future<_i2.Either<_i5.Failure, _i6.Product>>.value(
+              _FakeEither_0<_i5.Failure, _i6.Product>(
+                this,
+                Invocation.method(#getProductById, [id]),
+              ),
+            ),
           )
-          as _i4.Future<_i2.Either<_i5.Failure, _i6.Product?>>);
+          as _i4.Future<_i2.Either<_i5.Failure, _i6.Product>>);
 
   @override
   _i4.Future<_i2.Either<_i5.Failure, _i2.Unit>> createProduct(

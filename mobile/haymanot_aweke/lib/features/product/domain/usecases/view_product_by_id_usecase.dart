@@ -1,16 +1,18 @@
 import 'package:dartz/dartz.dart';
+
 import '../../../../core/error/failure.dart';
 import '../../../../core/usecases/usecase_params.dart';
 import '../../../../core/usecases/usecases.dart';
+import '../entities/product.dart';
 import '../repositories/product_repository.dart';
 
-class UpdateProductUsecase extends UseCase<Unit, ProductParams> {
+class ViewProductByIdUsecase extends UseCase<Product, IdParams> {
   final ProductRepository repository;
 
-  UpdateProductUsecase(this.repository);
+  ViewProductByIdUsecase(this.repository);
 
   @override
-  Future<Either<Failure, Unit>> call(ProductParams params) async {
-    return await repository.updateProduct(params.product);
+  Future<Either<Failure, Product>> call(IdParams params) async {
+    return await repository.getProductById(params.id);
   }
 }

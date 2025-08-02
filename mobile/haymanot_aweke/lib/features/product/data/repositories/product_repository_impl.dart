@@ -72,7 +72,7 @@ class ProductRepositoryImpl implements ProductRepository {
   }
 
   @override
-  Future<Either<Failure, Product?>> getProductById(String id) async {
+  Future<Either<Failure, Product>> getProductById(String id) async {
     if (await networkInfo.isConnected) {
       try {
         final remoteProduct = await remoteDataSource.getProductById(id);
