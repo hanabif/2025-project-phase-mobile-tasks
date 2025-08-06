@@ -20,7 +20,7 @@ void main() {
 
   setUp(() {
     mockHttpClient = MockClient();
-    dataSource = ProductRemoteDataSourceImpl(client: mockHttpClient);
+    dataSource = ProductRemoteDataSourceImpl(client: mockHttpClient, baseUrl: 'https://g5-flutter-learning-path-be.onrender.com');
   });
 
   void setUpMockHttpClientSuccess200WithList() {
@@ -61,7 +61,7 @@ void main() {
         //assert
         verify(
           mockHttpClient.get(
-            Uri.parse('https://api.yourapp.com/products'),
+            Uri.parse('https://g5-flutter-learning-path-be-tvum.onrender.com'),
             headers: {'Content-Type': 'application/json'},
           ),
         );
@@ -107,7 +107,7 @@ void main() {
         verify(
           mockHttpClient.get(
             Uri.parse(
-              'https://g5-flutter-learning-path-be.onrender.com/api/v1/products/$tId',
+              'https://g5-flutter-learning-path-be-tvum.onrender.com/api/v1/products/$tId',
             ),
             headers: {'Content-Type': 'application/json'},
           ),
@@ -165,7 +165,7 @@ void main() {
 
     setUp(() {
       mockHttpClient = MockClient();
-      dataSource = ProductRemoteDataSourceImpl(client: mockHttpClient);
+      dataSource = ProductRemoteDataSourceImpl(client: mockHttpClient, baseUrl: 'https://g5-flutter-learning-path-be-tvum.onrender.com');
     });
 
     test('should send a multipart POST request with correct data', () async {
@@ -188,7 +188,7 @@ void main() {
       expect(
         capturedRequest.url.toString(),
         equals(
-          'https://g5-flutter-learning-path-be.onrender.com/api/v1/products',
+          'https://g5-flutter-learning-path-be-tvum.onrender.com/api/v1/products',
         ),
       );
       expect(capturedRequest.method, equals('POST'));

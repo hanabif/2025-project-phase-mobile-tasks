@@ -13,7 +13,6 @@ import '../../domain/usecases/update_product.dart';
 import '../../domain/usecases/view_product.dart';
 import '../../domain/usecases/view_product_by_id_usecase.dart';
 
-
 part 'product_event.dart';
 part 'product_state.dart';
 
@@ -43,7 +42,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
         },
         (parsedPrice) async {
           emit(LoadingState());
-          
+
           final result = await createProduct(ProductParams(event.product));
 
           await result.fold(
@@ -51,7 +50,6 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
               emit(ErrorState(message: _mapFailureToMessage(failure)));
             },
             (_) async {
-              
               final productsOrFailure = await viewProduct(NoParams());
 
               await productsOrFailure.fold(
@@ -67,13 +65,20 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     });
 
     on<LoadAllProductEvent>((event, emit) async {
+      print("[ProductBloc] LoadAllProductEvent triggered");
       emit(LoadingState());
 
       final failureOrProducts = await viewProduct(NoParams());
 
       failureOrProducts.fold(
-        (failure) => emit(ErrorState(message: _mapFailureToMessage(failure))),
-        (products) => emit(LoadedAllProductState(products: products)),
+        (failure) {
+          print("[ProductBloc] Error: ${_mapFailureToMessage(failure)}");
+          emit(ErrorState(message: _mapFailureToMessage(failure)));
+        },
+        (products) {
+          print("[ProductBloc] Products loaded: ${products.length}");
+          emit(LoadedAllProductState(products: products ?? []));
+        },
       );
     });
 

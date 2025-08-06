@@ -23,6 +23,9 @@ final sl = GetIt.instance;
 Future<void> init() async {
   //! Features – Product
   //bloc
+  if (sl.isRegistered<ProductBloc>()) {
+    sl.unregister<ProductBloc>();
+  }
   sl.registerFactory(
     () => ProductBloc(
       createProduct: sl(),
@@ -50,8 +53,10 @@ Future<void> init() async {
   );
 
   // Data sources
+  final baseUrl = 'https://g5-flutter-learning-path-be-tvum.onrender.com';
+
   sl.registerLazySingleton<ProductRemoteDataSource>(
-    () => ProductRemoteDataSourceImpl(client: sl()),
+    () => ProductRemoteDataSourceImpl(client: http.Client(), baseUrl: baseUrl),
   );
   sl.registerLazySingleton<ProductLocalDataSource>(
     () => ProductLocalDataSourceImpl(sharedPreferences: sl()),

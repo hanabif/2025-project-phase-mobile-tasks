@@ -30,7 +30,6 @@ class _DetailPageState extends State<DetailPage> {
     );
 
     if (updatedProduct != null && mounted) {
-      // Optionally refresh product data via Bloc
       context.read<ProductBloc>().add(GetSingleProductEvent(product.id));
     }
   }
@@ -64,7 +63,7 @@ class _DetailPageState extends State<DetailPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // UI UNTOUCHED — full content preserved
+                
                 Align(
                   alignment: Alignment.topLeft,
                   child: CircleAvatar(

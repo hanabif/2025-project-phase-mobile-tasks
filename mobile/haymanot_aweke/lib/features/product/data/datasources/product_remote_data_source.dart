@@ -31,50 +31,34 @@ abstract class ProductRemoteDataSource {
 
 class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   final http.Client client;
+  final String baseUrl;
 
-  ProductRemoteDataSourceImpl({required this.client});
+  ProductRemoteDataSourceImpl({required this.baseUrl, required this.client});
 
-  Future<Map<String, dynamic>> _getJsonFromUrl(Uri url) async {
-    final response = await client.get(
-      url,
-      headers: {'Content-Type': 'application/json'},
-    );
+  // Common headers
+  Map<String, String> get _headers => {'Content-Type': 'application/json'};
 
-    if (response.statusCode == 200) {
-      return json.decode(response.body) as Map<String, dynamic>;
-    } else {
-      throw ServerException();
-    }
-  }
-
-  Future<List<Map<String, dynamic>>> _getListFromUrl(Uri url) async {
-    final response = await client.get(
-      url,
-      headers: {'Content-Type': 'application/json'},
-    );
-
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> jsonResponse = json.decode(response.body);
-      final List<dynamic> jsonList = jsonResponse['data'];
-      return jsonList.cast<Map<String, dynamic>>();
-    } else {
-      throw ServerException();
+  // Helper for error checking
+  void _handleResponse(http.Response response, {int expectedCode = 200}) {
+    if (response.statusCode != expectedCode) {
+      throw ServerException(
+        'Status code: ${response.statusCode}, body: ${response.body}',
+      );
     }
   }
 
   @override
   Future<void> createProduct(ProductModel product) async {
-    final uri = Uri.parse(
-      'https://g5-flutter-learning-path-be.onrender.com/api/v1/products',
-    );
+    final uri = Uri.parse('$baseUrl/api/v1/products');
     final request =
         http.MultipartRequest('POST', uri)
           ..fields['name'] = product.name
           ..fields['description'] = product.description
           ..fields['price'] = product.price.toString();
+
     final imageFile = File(product.imageUrl);
     if (!await imageFile.exists()) {
-      throw Exception('Image file not found at path: ${imageFile.path}');
+      throw ServerException('Image file not found: ${imageFile.path}');
     }
 
     request.files.add(
@@ -84,68 +68,60 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
     final streamedResponse = await client.send(request);
     final response = await http.Response.fromStream(streamedResponse);
 
-    if (response.statusCode != 201) {
-      throw ServerException();
-    }
+    _handleResponse(response, expectedCode: 201);
   }
 
   @override
   Future<void> deleteProduct(String id) async {
     final response = await client.delete(
-      Uri.parse(
-        'https://g5-flutter-learning-path-be.onrender.com/api/v1/products/$id',
-      ),
-      headers: {'Content-Type': 'application/json'},
+      Uri.parse('$baseUrl/api/v1/products/$id'),
+      headers: _headers,
     );
 
-    if (response.statusCode != 200) {
-      throw ServerException();
-    }
+    _handleResponse(response);
   }
 
   @override
   Future<List<ProductModel>> getAllProducts() async {
-    final jsonList = await _getListFromUrl(
-      Uri.parse(
-        'https://g5-flutter-learning-path-be.onrender.com/api/v1/products',
-      ),
+    final response = await client.get(
+      Uri.parse('$baseUrl/api/v1/products'),
+      headers: _headers,
     );
-    return jsonList.map((jsonMap) => ProductModel.fromJson(jsonMap)).toList();
+    
+    _handleResponse(response);
+
+    final Map<String, dynamic> jsonResponse = json.decode(response.body);
+    final List<dynamic> jsonList = jsonResponse['data'];
+    return jsonList.map((e) => ProductModel.fromJson(e)).toList();
   }
 
   @override
   Future<ProductModel> getProductById(String id) async {
-    final jsonMap = await _getJsonFromUrl(
-      Uri.parse(
-        'https://g5-flutter-learning-path-be.onrender.com/api/v1/products/$id',
-      ),
+    final response = await client.get(
+      Uri.parse('$baseUrl/api/v1/products/$id'),
+      headers: _headers,
     );
 
-    final data = jsonMap['data'] as Map<String, dynamic>;
+    _handleResponse(response);
 
-    return ProductModel.fromJson(data);
+    final Map<String, dynamic> jsonMap = json.decode(response.body);
+    return ProductModel.fromJson(jsonMap['data']);
   }
 
   @override
   Future<void> updateProduct(ProductModel product) async {
-    final url = Uri.parse(
-      'https://g5-flutter-learning-path-be.onrender.com/api/v1/products/${product.id}',
-    );
-
-    final body = json.encode({
-      'name': product.name,
-      'description': product.description,
-      'price': product.price,
-    });
+    final url = Uri.parse('$baseUrl/api/v1/products/${product.id}');
 
     final response = await client.put(
       url,
-      headers: {'Content-Type': 'application/json'},
-      body: body,
+      headers: _headers,
+      body: json.encode({
+        'name': product.name,
+        'description': product.description,
+        'price': product.price,
+      }),
     );
 
-    if (response.statusCode != 200) {
-      throw ServerException();
-    }
+    _handleResponse(response);
   }
 }

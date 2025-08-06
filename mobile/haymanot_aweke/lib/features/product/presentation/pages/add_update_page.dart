@@ -17,41 +17,83 @@ class AddUpdatePage extends StatefulWidget {
 
 class _AddUpdatePageState extends State<AddUpdatePage> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _priceController = TextEditingController();
-  final TextEditingController _descriptionController = TextEditingController();
+  late TextEditingController _nameController;
+  late TextEditingController _descriptionController;
+  late TextEditingController _priceController;
+  late TextEditingController _imageUrlController;
 
   @override
   void initState() {
     super.initState();
-    if (widget.product != null) {
-      _nameController.text = widget.product!.name;
-      _priceController.text = widget.product!.price.toString();
-      _descriptionController.text = widget.product!.description;
+    _nameController = TextEditingController(text: widget.product?.name ?? '');
+    _descriptionController = TextEditingController(
+      text: widget.product?.description ?? '',
+    );
+    _priceController = TextEditingController(
+      text: widget.product?.price.toString() ?? '',
+    );
+    _imageUrlController = TextEditingController(
+      text: widget.product?.imageUrl ?? '',
+    );
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _descriptionController.dispose();
+    _priceController.dispose();
+    _imageUrlController.dispose();
+    super.dispose();
+  }
+
+  void _submitForm() {
+    if (_formKey.currentState!.validate()) {
+      final product = Product(
+        id: widget.product?.id ?? '',
+        name: _nameController.text.trim(),
+        description: _descriptionController.text.trim(),
+        price: double.tryParse(_priceController.text.trim()) ?? 0,
+        imageUrl: _imageUrlController.text.trim(),
+      );
+
+      final bloc = context.read<ProductBloc>();
+
+      if (widget.isEditing) {
+        bloc.add(UpdateProductEvent(product));
+      } else {
+        bloc.add(CreateProductEvent(product));
+      }
     }
   }
 
-  void _addOrUpdateProduct() {
-    if (_formKey.currentState!.validate()) {
-      final name = _nameController.text.trim();
-      final price = double.tryParse(_priceController.text.trim()) ?? 0;
-      final description = _descriptionController.text.trim();
+  void _deleteProduct(BuildContext context, String productId) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Delete Product'),
+            content: const Text(
+              'Are you sure you want to delete this product?',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text(
+                  'Delete',
+                  style: TextStyle(color: Colors.red),
+                ),
+              ),
+            ],
+          ),
+    );
 
-      final newProduct = Product(
-        id:
-            widget.product?.id ??
-            DateTime.now().millisecondsSinceEpoch.toString(),
-        name: name,
-        price: price,
-        description: description,
-        imageUrl: widget.product?.imageUrl ?? 'https://example.com/default.jpg',
-      );
-
-      if (widget.product == null) {
-        context.read<ProductBloc>().add(CreateProductEvent(newProduct));
-      } else {
-        context.read<ProductBloc>().add(UpdateProductEvent(newProduct));
-      }
+    if (confirmed == true) {
+      context.read<ProductBloc>().add(DeleteProductEvent(productId));
+      context.read<ProductBloc>().add(LoadAllProductEvent());
     }
   }
 
@@ -59,61 +101,80 @@ class _AddUpdatePageState extends State<AddUpdatePage> {
   Widget build(BuildContext context) {
     return BlocListener<ProductBloc, ProductState>(
       listener: (context, state) {
-        if (state is LoadingState) {
-          LoadingDialog.show(context);
-        } else if (state is ErrorState) {
-          LoadingDialog.hide(context); // Dismiss loading
+        if (state is ErrorState) {
+          Navigator.of(context).pop(); // close loading
           ScaffoldMessenger.of(
             context,
           ).showSnackBar(SnackBar(content: Text(state.message)));
-        } else if (state is LoadedAllProductState) {
-          Navigator.popUntil(context, ModalRoute.withName('/'));
+        }
+
+        if (state is LoadedAllProductState) {
+          Navigator.of(context).pushNamedAndRemoveUntil(
+            '/', 
+            (route) => false,
+          );
         }
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text(
-            widget.product == null ? 'Add Product' : 'Update Product',
-          ),
+          title: Text(widget.isEditing ? 'Edit Product' : 'Add Product'),
+          actions: [
+            if (widget.isEditing)
+              IconButton(
+                icon: const Icon(Icons.delete, color: Colors.red),
+                onPressed: () => _deleteProduct(context, widget.product!.id),
+              ),
+          ],
         ),
         body: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Form(
             key: _formKey,
-            child: Column(
+            child: ListView(
               children: [
                 TextFormField(
                   controller: _nameController,
                   decoration: const InputDecoration(labelText: 'Product Name'),
                   validator:
                       (value) =>
-                          value == null || value.isEmpty
-                              ? 'Enter product name'
-                              : null,
+                          value == null || value.isEmpty ? 'Enter name' : null,
                 ),
-                TextFormField(
-                  controller: _priceController,
-                  decoration: const InputDecoration(labelText: 'Price'),
-                  keyboardType: TextInputType.number,
-                  validator:
-                      (value) =>
-                          value == null || value.isEmpty ? 'Enter price' : null,
-                ),
+                const SizedBox(height: 12),
                 TextFormField(
                   controller: _descriptionController,
                   decoration: const InputDecoration(labelText: 'Description'),
-                  maxLines: 3,
                   validator:
                       (value) =>
                           value == null || value.isEmpty
                               ? 'Enter description'
                               : null,
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _priceController,
+                  decoration: const InputDecoration(labelText: 'Price'),
+                  keyboardType: TextInputType.number,
+                  validator:
+                      (value) =>
+                          value == null || double.tryParse(value) == null
+                              ? 'Enter valid price'
+                              : null,
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _imageUrlController,
+                  decoration: const InputDecoration(labelText: 'Image URL'),
+                  validator:
+                      (value) =>
+                          value == null || value.isEmpty
+                              ? 'Enter image URL'
+                              : null,
+                ),
+                const SizedBox(height: 24),
                 ElevatedButton(
-                  onPressed: _addOrUpdateProduct,
+                  onPressed: _submitForm,
                   child: Text(
-                    widget.product == null ? 'Add Product' : 'Update Product',
+                    widget.isEditing ? 'Update Product' : 'Add Product',
                   ),
                 ),
               ],

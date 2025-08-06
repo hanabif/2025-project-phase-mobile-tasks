@@ -98,7 +98,7 @@ void main() {
           // arrange
           when(
             mockRemoteDataSource.getAllProducts(),
-          ).thenThrow(ServerException());
+          ).thenThrow(ServerException('Failed to fetch products'));
 
           // act
           final result = await repository.getAllProducts();
@@ -226,7 +226,7 @@ void main() {
           // arrange
           when(
             mockRemoteDataSource.getProductById(tId),
-          ).thenThrow(ServerException());
+          ).thenThrow(ServerException('Failed to fetch products'));
 
           // act
           final result = await repository.getProductById(tId);
@@ -335,7 +335,7 @@ void main() {
           // arrange
           when(
             mockRemoteDataSource.createProduct(testProductModel),
-          ).thenThrow(ServerException());
+          ).thenThrow(ServerException('Failed to fetch products'));
 
           // act
           final result = await repository.createProduct(testProduct);
@@ -417,7 +417,7 @@ void main() {
           // arrange
           when(
             mockRemoteDataSource.deleteProduct(testId),
-          ).thenThrow(ServerException());
+          ).thenThrow(ServerException('Failed to fetch products'));
 
           // act
           final result = await repository.deleteProduct(testId);
@@ -500,7 +500,7 @@ void main() {
           // arrange
           when(
             mockRemoteDataSource.updateProduct(testProductModel),
-          ).thenThrow(ServerException());
+          ).thenThrow(ServerException('Failed to fetch products'));
 
           // act
           final result = await repository.updateProduct(testProduct);

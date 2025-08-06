@@ -57,14 +57,14 @@ class ProductRepositoryImpl implements ProductRepository {
       try {
         final remoteProducts = await remoteDataSource.getAllProducts();
         localDataSource.cacheProductList(remoteProducts);
-        return Right(remoteProducts);
+        return Right(remoteProducts ?? []);
       } on ServerException {
         return Left(ServerFailure());
       }
     } else {
       try {
         final localProducts = await localDataSource.getLastProductList();
-        return Right(localProducts);
+        return Right(localProducts ?? []);
       } on CacheException {
         return Left(CacheFailure());
       }
