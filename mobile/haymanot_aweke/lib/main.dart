@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'core/router/app_router.dart';
 import 'injection_container.dart' as di;
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await di.init();
@@ -19,9 +20,16 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: Colors.white,
         fontFamily: 'Poppins',
         primarySwatch: const MaterialColor(0xFF2196F3, {
-          50: Color(0xFFE8E9FD),
-          100: Color(0xFFC1C4FA),
-          200: Color(0xFF969BF7),
+          50: Color(0xFFE3F2FD),
+          100: Color(0xFFBBDEFB),
+          200: Color(0xFF90CAF9),
+          300: Color(0xFF64B5F6),
+          400: Color(0xFF42A5F5),
+          500: Color(0xFF2196F3), // 👈 REQUIRED
+          600: Color(0xFF1E88E5),
+          700: Color(0xFF1976D2),
+          800: Color(0xFF1565C0),
+          900: Color(0xFF0D47A1),
         }),
       ),
       initialRoute: '/',
