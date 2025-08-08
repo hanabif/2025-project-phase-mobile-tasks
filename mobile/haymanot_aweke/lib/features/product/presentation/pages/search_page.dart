@@ -10,46 +10,102 @@ class SearchPage extends StatefulWidget {
   State<SearchPage> createState() => _SearchPageState();
 }
 
-class _SearchPageState extends State<SearchPage> {
+class _SearchPageState extends State<SearchPage>
+    with SingleTickerProviderStateMixin {
   final TextEditingController searchController = TextEditingController();
-  double _priceValue = 100; // default max price
+  double _priceValue = 1000; // default max price
 
   late List<Product> filteredResults;
+
+  bool _showFilterPanel = false;
+  late AnimationController _animationController;
+  late Animation<Offset> _slideAnimation;
 
   @override
   void initState() {
     super.initState();
     filteredResults = widget.searchResults;
+
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 1),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
+
+    searchController.addListener(() {
+      applyFilters();
+    });
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    searchController.dispose();
+    super.dispose();
+  }
+
+  void toggleFilterPanel() {
+    setState(() {
+      _showFilterPanel = !_showFilterPanel;
+      if (_showFilterPanel) {
+        _animationController.forward();
+      } else {
+        _animationController.reverse();
+      }
+    });
   }
 
   void applyFilters() {
     final query = searchController.text.toLowerCase();
-
+    print('searching...');
     setState(() {
-      filteredResults = widget.searchResults.where((product) {
-        final matchesQuery =
-            query.isEmpty || product.name.toLowerCase().contains(query);
-        final matchesPrice = product.price <= _priceValue;
-        return matchesQuery && matchesPrice;
-      }).toList();
+      filteredResults =
+          widget.searchResults.where((product) {
+            final matchesQuery =
+                query.isEmpty || product.name.toLowerCase().contains(query);
+            final matchesPrice = product.price <= _priceValue;
+            return matchesQuery && matchesPrice;
+          }).toList();
+      print('Filtered products count: ${filteredResults.length}');
     });
   }
 
+  Widget _buildFilterButton() {
+    return GestureDetector(
+      onTap: toggleFilterPanel,
+      child: Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: const Color(0xFF3D4CE0),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: const Icon(Icons.filter_alt_outlined, color: Colors.white),
+      ),
+    );
+  }
+
   Widget _buildLabel(String text) => Text(
-        text,
-        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
-      );
+    text,
+    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
+  );
 
   Widget _buildSearchField() {
     return TextField(
+      onSubmitted: (_) {
+        applyFilters();
+      },
       controller: searchController,
       onChanged: (_) => applyFilters(),
       decoration: InputDecoration(
         hintText: "Leather",
         contentPadding: const EdgeInsets.symmetric(vertical: 9, horizontal: 16),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
         suffixIcon: IconButton(
           onPressed: applyFilters,
           icon: const Icon(Icons.arrow_forward, color: Color(0xFF3D4CE0)),
@@ -58,31 +114,20 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 
-  Widget _buildProductList() {
-    return Expanded(
-      child: ListView.builder(
-        itemCount: filteredResults.length,
-        itemBuilder: (context, index) {
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 16),
-            child: ProductCard(product: filteredResults[index]),
-          );
-        },
-      ),
-    );
-  }
-
   Widget _buildBottomFilterPanel() {
-    return Positioned(
-      left: 0,
-      right: 0,
-      bottom: 0,
+    return SlideTransition(
+      position: _slideAnimation,
       child: Container(
+        height: 190,
         padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 21),
         decoration: const BoxDecoration(
           color: Colors.white,
           boxShadow: [
-            BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 4)),
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 4,
+              offset: Offset(0, 4),
+            ),
           ],
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(40),
@@ -90,10 +135,8 @@ class _SearchPageState extends State<SearchPage> {
           ),
         ),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 38),
             _buildLabel("Price"),
             const SizedBox(height: 12),
             SliderTheme(
@@ -115,10 +158,16 @@ class _SearchPageState extends State<SearchPage> {
             const SizedBox(height: 16),
             Center(
               child: ElevatedButton(
-                onPressed: applyFilters,
+                onPressed: () {
+                  toggleFilterPanel();
+                  applyFilters();
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF3D4CE0),
-                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 40,
+                    vertical: 12,
+                  ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -159,7 +208,10 @@ class _SearchPageState extends State<SearchPage> {
                       ),
                       const Text(
                         "Search Product",
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ],
                   ),
@@ -168,22 +220,31 @@ class _SearchPageState extends State<SearchPage> {
                     children: [
                       Expanded(child: _buildSearchField()),
                       const SizedBox(width: 7),
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF3D4CE0),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Icon(Icons.filter_alt_outlined, color: Colors.white),
-                      ),
+                      _buildFilterButton(),
                     ],
                   ),
                   const SizedBox(height: 36),
-                  _buildProductList(),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: filteredResults.length,
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 16),
+                          child: ProductCard(product: filteredResults[index]),
+                        );
+                      },
+                    ),
+                  ),
                 ],
               ),
             ),
-            _buildBottomFilterPanel(),
+            if (_showFilterPanel)
+              Positioned(
+                right: 0,
+                left: 0,
+                bottom: 0,
+                child: _buildBottomFilterPanel(),
+              ),
           ],
         ),
       ),

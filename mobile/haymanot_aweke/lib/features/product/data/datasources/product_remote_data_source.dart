@@ -2,6 +2,8 @@
 
 import 'dart:convert';
 import 'dart:io';
+import 'package:http_parser/http_parser.dart';
+import 'package:path/path.dart' as path;
 
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -74,7 +76,7 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> jsonResponse = json.decode(response.body);
-        final List<dynamic> jsonList = jsonResponse['data']  ?? [];
+        final List<dynamic> jsonList = jsonResponse['data'] ?? [];
         return jsonList.map((item) => item as Map<String, dynamic>).toList();
       } else {
         print('GET list failed: ${response.body}');
@@ -89,7 +91,7 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   @override
   Future<void> createProduct(ProductModel product) async {
     try {
-      final token = _getToken();
+      //final token = _getToken();
       final uri = Uri.parse(
         'https://g5-flutter-learning-path-be-tvum.onrender.com/api/v1/products',
       );
@@ -99,17 +101,42 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
             ..fields['name'] = product.name
             ..fields['description'] = product.description
             ..fields['price'] = product.price.toString();
-           // ..headers['Authorization'] = 'Bearer $token';
 
-      final imageFile = File(product.imageUrl);
-      if (!await imageFile.exists()) {
-        throw Exception('Image file not found at path: ${imageFile.path}');
+      // ..headers['Authorization'] = 'Bearer $token';
+      if (product.imageUrl.isNotEmpty &&
+          !product.imageUrl.startsWith('http') &&
+          File(product.imageUrl).existsSync()) {
+        final fileExtension = path.extension(product.imageUrl).toLowerCase();
+        MediaType? contentType;
+
+        switch (fileExtension) {
+          case '.jpg':
+          case '.jpeg':
+            contentType = MediaType('image', 'jpeg');
+            break;
+          case '.png':
+            contentType = MediaType('image', 'png');
+            break;
+          case '.gif':
+            contentType = MediaType('image', 'gif');
+            break;
+          case '.webp':
+            contentType = MediaType('image', 'webp');
+            break;
+          default:
+            contentType = MediaType('image', 'jpeg');
+        }
+
+        final imageFile = await http.MultipartFile.fromPath(
+          'image',
+          product.imageUrl,
+          contentType: contentType,
+        );
+
+        request.files.add(imageFile);
+      } else {
+        throw Exception('Valid image file is required');
       }
-
-      request.files.add(
-        await http.MultipartFile.fromPath('image', imageFile.path),
-      );
-
       print('Sending createProduct request to: ${uri.toString()}');
       final streamedResponse = await client.send(request);
       final response = await http.Response.fromStream(streamedResponse);
@@ -118,7 +145,10 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
         'createProduct response: ${response.statusCode} → ${response.body}',
       );
 
-      if (response.statusCode != 201) {
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        print('product created successfully');
+        return;
+      } else {
         throw ServerException();
       }
     } catch (e) {
