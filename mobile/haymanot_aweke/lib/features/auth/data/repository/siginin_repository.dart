@@ -28,7 +28,6 @@ class SigninRepositoryImpl implements SigninRepository {
     print('🏪 SigninRepository: Email: ${credentials.email}');
 
     try {
-      
       final isConnected = await networkInfo.isConnected;
       if (!await isConnected) {
         return Left(NetworkFailure());
@@ -46,6 +45,8 @@ class SigninRepositoryImpl implements SigninRepository {
       );
 
       final accessToken = await userRemoteDatasource.signIn(userModel);
+      await userLocalDatasource.saveToken(accessToken);
+      await userLocalDatasource.cacheUser(userModel);
       try {
         await userLocalDatasource.saveToken(accessToken);
       } catch (cacheError) {

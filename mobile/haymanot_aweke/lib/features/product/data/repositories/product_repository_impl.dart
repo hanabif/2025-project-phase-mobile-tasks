@@ -1,5 +1,8 @@
+// ignore_for_file: avoid_print
+
 import 'package:dartz/dartz.dart';
 import 'package:meta/meta.dart';
+
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/error/failure.dart';
 import '../../../../core/network/network_info.dart';
@@ -25,13 +28,16 @@ class ProductRepositoryImpl implements ProductRepository {
     if (await networkInfo.isConnected) {
       try {
         final model = ProductModel.fromEntity(product);
+        print('Creating product: ${model.name}');
         await remoteDataSource.createProduct(model);
         await localDataSource.cacheProduct(model);
         return const Right(unit);
-      } on ServerException {
+      } on ServerException catch (e) {
+        print('Create product failed: $e');
         return Left(ServerFailure());
       }
     } else {
+      print('Create product failed: No internet');
       return Left(NetworkFailure());
     }
   }
@@ -40,13 +46,16 @@ class ProductRepositoryImpl implements ProductRepository {
   Future<Either<Failure, Unit>> deleteProduct(String id) async {
     if (await networkInfo.isConnected) {
       try {
+        print('Deleting product with id: $id');
         await remoteDataSource.deleteProduct(id);
         await localDataSource.deleteProduct(id);
         return const Right(unit);
-      } on ServerException {
+      } on ServerException catch (e) {
+        print('Delete product failed: $e');
         return Left(ServerFailure());
       }
     } else {
+      print('Delete product failed: No internet');
       return Left(NetworkFailure());
     }
   }
@@ -55,17 +64,21 @@ class ProductRepositoryImpl implements ProductRepository {
   Future<Either<Failure, List<Product>>> getAllProducts() async {
     if (await networkInfo.isConnected) {
       try {
+        print('Fetching all products from remote');
         final remoteProducts = await remoteDataSource.getAllProducts();
-        localDataSource.cacheProductList(remoteProducts);
+        await localDataSource.cacheProductList(remoteProducts);
         return Right(remoteProducts);
-      } on ServerException {
+      } on ServerException catch (e) {
+        print('Get all products failed: $e');
         return Left(ServerFailure());
       }
     } else {
       try {
+        print('Fetching products from cache');
         final localProducts = await localDataSource.getLastProductList();
         return Right(localProducts);
-      } on CacheException {
+      } on CacheException catch (e) {
+        print('Get all products from cache failed: $e');
         return Left(CacheFailure());
       }
     }
@@ -75,17 +88,21 @@ class ProductRepositoryImpl implements ProductRepository {
   Future<Either<Failure, Product>> getProductById(String id) async {
     if (await networkInfo.isConnected) {
       try {
+        print('Getting product by id: $id');
         final remoteProduct = await remoteDataSource.getProductById(id);
-        localDataSource.cacheProduct(remoteProduct);
+        await localDataSource.cacheProduct(remoteProduct);
         return Right(remoteProduct);
-      } on ServerException {
+      } on ServerException catch (e) {
+        print('Get product by id failed: $e');
         return Left(ServerFailure());
       }
     } else {
       try {
+        print('Getting product from local cache by id: $id');
         final localProduct = await localDataSource.getProductById(id);
         return Right(localProduct);
-      } on CacheException {
+      } on CacheException catch (e) {
+        print('Get product from cache failed: $e');
         return Left(CacheFailure());
       }
     }
@@ -96,13 +113,16 @@ class ProductRepositoryImpl implements ProductRepository {
     if (await networkInfo.isConnected) {
       try {
         final model = ProductModel.fromEntity(product);
+        print('Updating product with id: ${model.id}');
         await remoteDataSource.updateProduct(model);
         await localDataSource.cacheProduct(model);
         return const Right(unit);
-      } on ServerException {
+      } on ServerException catch (e) {
+        print('Update product failed: $e');
         return Left(ServerFailure());
       }
     } else {
+      print('Update product failed: No internet');
       return Left(NetworkFailure());
     }
   }

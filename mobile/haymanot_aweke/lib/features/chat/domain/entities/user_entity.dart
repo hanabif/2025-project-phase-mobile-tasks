@@ -1,12 +1,11 @@
 class UserEntity {
-  final String? id; // make it nullable for auth
+  final String id;
   final String name;
-  final String? password; // make it nullable for chat
   final String email;
+
   const UserEntity({
-    this.id,
+    required this.id,
     required this.name,
     required this.email,
-    this.password,
   });
 }

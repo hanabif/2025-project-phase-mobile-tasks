@@ -22,10 +22,15 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
-        fit: StackFit.expand,
+        
         children: [
-          Image.asset('images/back.png', fit: BoxFit.cover),
-          Container(color: Color(0xFF3F51F3)),
+          // Background image
+          Positioned.fill(
+            child: Image.asset("assets/images/back.png", fit: BoxFit.cover),
+          ),
+          Positioned.fill(
+            child: Container(color: Colors.indigo.withValues(alpha: 0.7)),
+          ),
           Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -42,7 +47,7 @@ class _SplashScreenState extends State<SplashScreen> {
                       'ECOM',
                       style: TextStyle(
                         fontFamily: 'CaveatBrush',
-                        fontSize: 112,
+                        fontSize: 60,
                         fontWeight: FontWeight.w400,
                         color: Color(0xFF3F51F3),
                       ),

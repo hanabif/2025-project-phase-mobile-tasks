@@ -75,6 +75,7 @@ class UserRemoteDatasourceImpl implements UserRemoteDatasource {
           if (accessToken == null || accessToken.toString().isEmpty) {
             throw Exception('No access token found');
           }
+          
           return accessToken.toString();
         } catch (jsonError) {
           throw Exception('invalid JSON: $jsonError');

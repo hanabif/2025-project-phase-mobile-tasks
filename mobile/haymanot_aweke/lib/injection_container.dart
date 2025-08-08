@@ -34,7 +34,6 @@ Future<void> init() async {
       inputConverter: sl(),
     ),
   );
-  
 
   sl.registerLazySingleton(() => CreateProductUsecase(sl()));
   sl.registerLazySingleton(() => DeleteProductUsecase(sl()));
@@ -42,7 +41,6 @@ Future<void> init() async {
   sl.registerLazySingleton(() => ViewProductByIdUsecase(sl()));
   sl.registerLazySingleton(() => ViewProductUsecase(sl()));
 
-  
   // Repository
   sl.registerLazySingleton<ProductRepository>(
     () => ProductRepositoryImpl(
@@ -51,20 +49,20 @@ Future<void> init() async {
       networkInfo: sl(),
     ),
   );
-  
 
   // Data sources
   sl.registerLazySingleton<ProductRemoteDataSource>(
-    () => ProductRemoteDataSourceImpl(client: sl()),
+    () => ProductRemoteDataSourceImpl(client: sl(), sharedPreferences: sl()),
   );
   sl.registerLazySingleton<ProductLocalDataSource>(
     () => ProductLocalDataSourceImpl(sharedPreferences: sl()),
   );
-  
 
   //!core
   sl.registerLazySingleton(() => InputConverter());
-  sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(connectionChecker: sl<InternetConnectionChecker>()));
+  sl.registerLazySingleton<NetworkInfo>(
+    () => NetworkInfoImpl(connectionChecker: sl<InternetConnectionChecker>()),
+  );
 
   //! external
   final sharedPreferences = await SharedPreferences.getInstance();
@@ -73,6 +71,4 @@ Future<void> init() async {
   sl.registerLazySingleton<InternetConnectionChecker>(
     () => InternetConnectionChecker.createInstance(),
   );
-
-  
 }

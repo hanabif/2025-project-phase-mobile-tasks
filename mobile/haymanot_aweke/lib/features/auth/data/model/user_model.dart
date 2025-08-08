@@ -1,7 +1,11 @@
+// features/auth/data/models/user_model.dart
+
+import '../../../chat/data/model/user_model.dart' as chat_model;
 import '../../domain/entity/user_entity.dart';
 
 class UserModel extends UserEntity {
-  UserModel({
+  const UserModel({
+    super.id,
     required super.name,
     required super.email,
     required super.password,
@@ -9,6 +13,7 @@ class UserModel extends UserEntity {
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
+      id: json['_id'], // if available
       name: json['name'],
       email: json['email'],
       password: json['password'],
@@ -16,12 +21,21 @@ class UserModel extends UserEntity {
   }
 
   Map<String, dynamic> toJson() {
-    final json = <String, dynamic>{'email': email, 'password': password};
-
-    if (name.isNotEmpty) {
-      json['name'] = name;
-    }
-
+    final json = <String, dynamic>{
+      'email': email,
+      'password': password,
+    };
+    if (name.isNotEmpty) json['name'] = name;
     return json;
+  }
+  
+}
+extension AuthUserModelAdapter on UserModel {
+  chat_model.UserModel toChatUserModel() {
+    return chat_model.UserModel(
+      id: '', // You can optionally fetch the actual ID from another source
+      name: name,
+      email: email,
+    );
   }
 }

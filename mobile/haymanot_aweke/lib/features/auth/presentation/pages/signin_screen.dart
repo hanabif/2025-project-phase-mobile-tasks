@@ -7,6 +7,9 @@ import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../core/network/network_info.dart';
+import '../../../../injection_container.dart';
+import '../../../product/presentation/bloc/product_bloc.dart';
+import '../../../product/presentation/pages/retrieve_all_products_page.dart';
 import '../../data/datasource/user_local_datasource.dart';
 import '../../data/datasource/user_remote_datasource.dart';
 import '../../data/repository/siginin_repository.dart';
@@ -84,7 +87,7 @@ class _SigninPageState extends State<SigninPage> {
         sharedPreferences: sharedPreferences,
       );
       final signinRepository = SigninRepositoryImpl(
-        userLocalDatasource : userLocalDatasource,
+        userLocalDatasource: userLocalDatasource,
         userRemoteDatasource: userRemoteDatasource,
         networkInfo: networkInfo,
       );
@@ -108,7 +111,14 @@ class _SigninPageState extends State<SigninPage> {
               duration: const Duration(seconds: 2),
             ),
           );
-          Navigator.pushReplacementNamed(context, '/chat');
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (_) => BlocProvider(
+                create: (_) => sl<ProductBloc>()..add(const LoadAllProductEvent()),
+                child: RetrieveAllProductsPage() ,
+                )),
+          );
         }
 
         if (state is SigninFailure) {
