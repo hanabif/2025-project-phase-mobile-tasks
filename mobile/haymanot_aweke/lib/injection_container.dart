@@ -58,7 +58,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => sharedPreferences);
   sl.registerLazySingleton(() => http.Client());
   sl.registerLazySingleton<InternetConnectionChecker>(
-    () => InternetConnectionChecker.createInstance(),
+    () => InternetConnectionChecker.instance,
   );
   sl.registerLazySingleton<DioClient>(() => DioClient());
 
@@ -66,7 +66,7 @@ Future<void> init() async {
   print(
     'Before registering SocketService: ${sl.isRegistered<SocketService>()}',
   );
-  sl.registerLazySingleton<SocketService>(() => SocketServiceImpl());
+  sl.registerLazySingleton<SocketService>(() => SocketService());
   print('After registering SocketService: ${sl.isRegistered<SocketService>()}');
 
   //! -------------------------
@@ -116,7 +116,7 @@ Future<void> init() async {
     () => ChatBloc(
       getChats: sl(),
       getMessages: sl(),
-      sendMessage: sl(),
+      // sendMessage: sl(),
       createChat: sl(),
       getAllChats: sl(),
       getAllUsers: sl(),
@@ -134,7 +134,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => CreateChatWithUserUsecase(sl()));
   sl.registerLazySingleton(() => GetMyChatsUsecase(sl()));
   sl.registerLazySingleton(() => GetChatMessagesUsecase(sl()));
-  sl.registerLazySingleton(() => SendMessageUsecase(sl()));
+  // sl.registerLazySingleton(() => SendMessageUsecase(sl()));
   sl.registerLazySingleton(() => GetAllUsersUsecase(sl()));
 
   // Repository

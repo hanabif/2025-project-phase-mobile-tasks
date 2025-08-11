@@ -15,12 +15,13 @@ class ChatRepositoryImpl implements ChatRepository {
   final ChatApiService api;
   final SocketService socket;
   final UserLocalDatasource userLocalDatasource;
+
   ChatRepositoryImpl({
     required this.userLocalDatasource,
     required this.api,
     required this.socket,
   });
-  
+
   @override
   Future<Either<Failure, Chat>> createChatWithUser(String userId) async {
     try {
@@ -50,7 +51,6 @@ class ChatRepositoryImpl implements ChatRepository {
       return Right(c);
     } on ServerException catch (e) {
       print(e.toString());
-
       return Left(ServerFailure());
     }
   }
@@ -77,44 +77,52 @@ class ChatRepositoryImpl implements ChatRepository {
     }
   }
 
+  // Socket connect: no token needed, SocketService reads it internally
   @override
-  Future<void> connectSocket(String token) => socket.connect(token);
+  Future<void> connectSocket() => socket.connect();
 
   @override
-  Future<void> disconnectSocket() => socket.disconnect();
-
-  @override
-  Stream<Message> subscribeMessages(String chatId) =>
-      socket.subscribeMessages(chatId);
-
-  @override
-  Future<Either<Failure, void>> sendMessage({
-    required String chatId,
-    required String content,
-    String type = 'text',
-  }) async {
+  Future<void> disconnectSocket() async {
     try {
-      await socket.sendMessage(
-        MessageModel(
-          id: '',
-          chatId: chatId,
-          senderId: '',
-          content: content,
-          type: type,
-        ),
-      );
-      return const Right(null);
+      socket.disconnect();
     } catch (e) {
-      print(e.toString());
-      return Left(ServerFailure());
+      print('Socket disconnection error: $e');
+      rethrow;
     }
   }
 
-  
+  @override
+  Stream<Message> subscribeMessages(String chatId) {
+    return socket.subscribeMessages(chatId);
+  }
+
+  // @override
+  // Future<Either<Failure, void>> sendMessage({
+  //   required String chatId,
+  //   required String content,
+  //   String type = 'text',
+  // }) async {
+  //   try {
+  //     await socket.sendMessage(
+  //       MessageModel(
+  //         id: '', // or generate ID if necessary
+  //         chatId: chatId,
+  //         senderId:
+  //             '', // consider getting current user ID here or from local datasource
+  //         content: content,
+  //         type: type,
+  //       ),
+  //     );
+  //     return const Right(null);
+  //   } catch (e) {
+  //     print('Error sending message: $e');
+  //     return Left(ServerFailure());
+  //   }
+  // }
+
   @override
   Future<Either<Failure, List<User>>> getAllUsers() async {
     try {
-     
       final list = await api.getAllUsers();
       return Right(list);
     } on ServerException catch (e) {

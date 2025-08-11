@@ -8,7 +8,6 @@ import '../../domain/entity/user_entity.dart';
 import '../../domain/repositories/signin_repository.dart';
 import '../datasource/user_local_datasource.dart';
 import '../datasource/user_remote_datasource.dart';
-import '../model/signin_model.dart';
 import '../model/user_model.dart';
 
 class SigninRepositoryImpl implements SigninRepository {
@@ -24,54 +23,85 @@ class SigninRepositoryImpl implements SigninRepository {
 
   @override
   Future<Either<Failure, String>> signin(UserEntity credentials) async {
-    print('🏪 SigninRepository: signin method called');
-    print('🏪 SigninRepository: Email: ${credentials.email}');
+    // try {
+    //   final isConnected = await networkInfo.isConnected;
+    //   if (!isConnected) {
+    //     return const Left(
+    //       NetworkFailure(
+    //         // message:
+    //         //     'No internet connection. Please check your network and try again.',
+    //       ),
+    //     );
+    //   }
+    // } catch (networkError) {
+    //   print('SigninRepository: Network check failed: $networkError');
+    // }
 
     try {
-      // final isConnected = await networkInfo.isConnected;
-      // print('Repository: isConnected? $isConnected');
-      // if (!isConnected) {
-      //   return Left(NetworkFailure());
-      // }
-    } catch (networkError) {
-      print('SigninRepository: Network check failed: $networkError');
-    }
-
-    try {
-      print('✅ Repository: Attempting to sign in...');
       final userModel = UserModel(
-        name: '', // Empty for signin
+        name: '',
         email: credentials.email,
         password: credentials.password,
       );
-
       final accessToken = await userRemoteDatasource.signIn(userModel);
-      print('SigninRepository: received access token: $accessToken');
-
       try {
         await userLocalDatasource.saveToken(accessToken);
+        print("Saved access Token: $accessToken");
       } catch (cacheError) {
         print(
           'SigninRepository: Token storage warning (non-critical): $cacheError',
         );
       }
-      print('🎉 SigninRepository: Signin process completed successfully!');
+      print("Successfully stored token");
       return Right(accessToken);
+    } on SocketException catch (e) {
+      print('SigninRepository: SocketException details: $e');
+      return const Left(
+        NetworkFailure(
+          // message: 'Connection failed. Please check your internet connection.',
+        ),
+      );
+    } on HttpException catch (e) {
+      return const Left(NetworkFailure());
     } on FormatException catch (e) {
-      return const Left(ServerFailure());
-    } 
-      // } if (errorMessage.contains('invalid credentials') ||
-      //     errorMessage.contains('unauthorized') ||
-      //     errorMessage.contains('sign in failed') ||
-      //     errorMessage.contains('login failed') ||
-      //     errorMessage.contains('authentication failed')) {
-      //   return const Left(ServerFailure());
-      // } else if (errorMessage.contains('user not found') ||
-      //     errorMessage.contains('account not found')) {
-      //   return const Left(ServerFailure());
-      // } else {
-      //   return const Left(ServerFailure());
-      // }
-    // }
+      return const Left(
+        ServerFailure(
+          // message: 'Invalid response from server. Please try again.',
+        ),
+      );
+    } catch (e) {
+      final errorMessage = e.toString().toLowerCase();
+
+      if (errorMessage.contains('network error') ||
+          errorMessage.contains('connection') ||
+          errorMessage.contains('timeout') ||
+          errorMessage.contains('socket')) {
+        return const Left(
+          NetworkFailure(
+            // message: 'Connection problem. Please check your internet.',
+          ),
+        );
+      } else if (errorMessage.contains('invalid credentials') ||
+          errorMessage.contains('unauthorized') ||
+          errorMessage.contains('sign in failed') ||
+          errorMessage.contains('login failed') ||
+          errorMessage.contains('authentication failed')) {
+        return const Left(
+          ServerFailure(
+            // message:
+            //     'Invalid email or password. Please check your credentials.',
+          ),
+        );
+      } else if (errorMessage.contains('user not found') ||
+          errorMessage.contains('account not found')) {
+        return const Left(
+          ServerFailure(
+            // message: 'Account not found. Please check your email or sign up.',
+          ),
+        );
+      } else {
+        return const Left(ServerFailure());
+      }
+    }
   }
 }

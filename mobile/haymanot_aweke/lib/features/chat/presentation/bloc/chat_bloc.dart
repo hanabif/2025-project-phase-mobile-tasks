@@ -17,7 +17,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class ChatBloc extends Bloc<ChatEvent, ChatState> {
   final GetMyChatsUsecase getChats;
   final GetChatMessagesUsecase getMessages;
-  final SendMessageUsecase sendMessage;
+  // final SendMessageUsecase sendMessage;
   final CreateChatWithUserUsecase createChat;
   final GetAllUsersUsecase getAllUsers;
   final UserLocalDatasource userLocalDatasource;
@@ -33,7 +33,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     required this.userLocalDatasource,
     required this.getChats,
     required this.getMessages,
-    required this.sendMessage,
+    // required this.sendMessage,
     required this.createChat,
     required this.getAllUsers,
     required Stream<Message> messageStream, required Object getAllChats, required Object getMessagesInChat, required Object getChatById, required Object socketService,
@@ -123,11 +123,11 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         _messages.add(optimisticMessage);
         emit(MessagesLoaded(List.from(_messages)));
 
-        await sendMessage(SendMessageParams(
-          chatId: event.chatId, 
-          content: event.message,
-          type: 'text',
-          ));
+        // await sendMessage(SendMessageParams(
+        //   chatId: event.chatId, 
+        //   content: event.message,
+        //   type: 'text',
+        //   ));
       } catch (e) {
         emit(ChatError(e.toString()));
       }

@@ -16,12 +16,12 @@ abstract class ChatRepository {
   Future<Either<Failure, List<User>>> getAllUsers();
 
   // Realtime
-  Future<void> connectSocket(String token);
+  Future<void> connectSocket();
   Future<void> disconnectSocket();
   Stream<Message> subscribeMessages(String chatId);
-  Future<Either<Failure, void>> sendMessage({
-    required String chatId,
-    required String content,
-    String type = 'text',
-  });
+  // Future<Either<Failure, void>> sendMessage({
+  //   required String chatId,
+  //   required String content,
+  //   String type = 'text',
+  // });
 }

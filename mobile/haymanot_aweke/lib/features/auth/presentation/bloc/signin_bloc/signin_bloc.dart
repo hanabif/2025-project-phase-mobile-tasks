@@ -1,54 +1,65 @@
-// ignore_for_file: prefer_const_constructors
-
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 
 import '../../../domain/entity/user_entity.dart';
 import '../../../domain/usecases/login.dart';
+
 import 'signin_event.dart';
 import 'signin_state.dart';
 
 class SigninBloc extends Bloc<SigninEvent, SigninState> {
   final SigninUsecase signinUsecase;
-  bool isPasswordVisible = false;
 
-  SigninBloc({required this.signinUsecase}) : super(SigninInitial()) {
-    on<SigninSubmitted>((
-      SigninSubmitted event,
-      Emitter<SigninState> emit,
-    ) async {
-      emit(SigninLoading());
-      try {
-        final credentials = UserEntity(
-          name: '',
-          email: event.email,
-          password: event.password,
-        );
+  SigninBloc({required this.signinUsecase})
+    : super(const SigninPasswordVisibilityToggled(isPasswordVisible: false)) {
+    on<SigninSubmitted>(_onSigninSubmitted);
+    on<TogglePasswordVisibility>(_onTogglePasswordVisibility);
+  }
 
-        final result = await signinUsecase.call(credentials);
-        result.fold(
-          (failure) {
-            print('Signin failed: $failure');
-            emit(SigninFailure(message: 'Sign in failed. Please try again.'));
-          },
-          (signinResponse) {
-            emit(SigninSuccess(message: 'successfully signed in '));
-          },
-        );
-      } catch (error) {
-        emit(
-          SigninFailure(
-            message: "An unexpected error occurred: ${error.toString()}",
-          ),
-        );
-      }
-    });
+  Future<void> _onSigninSubmitted(
+    SigninSubmitted event,
+    Emitter<SigninState> emit,
+  ) async {
+    emit(SigninLoading());
+    try {
+      final credentials = UserEntity(
+        name: '',
+        email: event.email,
+        password: event.password,
+      );
 
-    on<TogglePasswordVisibility>((
-      TogglePasswordVisibility event,
-      Emitter<SigninState> emit,
-    ) {
-      isPasswordVisible = !isPasswordVisible;
-      emit(SigninPasswordVisibilityToggled(isPasswordVisible));
-    });
+      final result = await signinUsecase.call(credentials);
+      result.fold(
+        (failure) {
+          emit(SigninFailure(message: 'failure.message'));
+        },
+        (token) async {
+          emit(const SigninSuccess(message: "Welcome! Sign in successful"));
+        },
+      );
+    } catch (error) {
+      emit(
+        SigninFailure(
+          message: "An unexpected error occurred: ${error.toString()}",
+        ),
+      
+      );
+    }
+  }
+
+  void _onTogglePasswordVisibility(
+    TogglePasswordVisibility event,
+    Emitter<SigninState> emit,
+  ) {
+    final currentState = state;
+    if (currentState is SigninPasswordVisibilityToggled) {
+      emit(
+        currentState.copyWith(
+          isPasswordVisible: !currentState.isPasswordVisible,
+        ),
+      );
+    } else {
+      emit(const SigninPasswordVisibilityToggled(isPasswordVisible: true));
+    }
   }
 }

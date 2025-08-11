@@ -1,12 +1,12 @@
-// ignore_for_file: prefer_const_constructors, depend_on_referenced_packages
+import 'package:internet_connection_checker/internet_connection_checker.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
-import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../core/network/network_info.dart';
+import '../../../../core/socket/socket_service.dart';
 import '../../data/datasource/user_local_datasource.dart';
 import '../../data/datasource/user_remote_datasource.dart';
 import '../../data/repository/siginin_repository.dart';
@@ -23,6 +23,14 @@ class SigninPage extends StatefulWidget {
 }
 
 class _SigninPageState extends State<SigninPage> {
+  final socketService = SocketService();
+
+  @override
+  void initState() {
+    super.initState();
+    socketService.connect();
+  }
+
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -76,13 +84,16 @@ class _SigninPageState extends State<SigninPage> {
   Future<SigninBloc> _createSigninBloc() async {
     try {
       final sharedPreferences = await SharedPreferences.getInstance();
-      final connectivity = InternetConnectionChecker.instance;
+      final internetConnectionChecker = InternetConnectionChecker.instance;
       final httpClient = http.Client();
-      final networkInfo = NetworkInfoImpl(connectionChecker: connectivity);
-      final userRemoteDatasource = UserRemoteDatasourceImpl(client: httpClient);
-      final userLocalDatasource = UserLocalDatasourceImpl(
-        sharedPreferences: sharedPreferences, client: httpClient,
+      final networkInfo = NetworkInfoImpl(
+        connectionChecker: internetConnectionChecker,
       );
+      final userLocalDatasource = UserLocalDatasourceImpl(
+        sharedPreferences: sharedPreferences,
+        client: httpClient,
+      );
+      final userRemoteDatasource = UserRemoteDatasourceImpl(client: httpClient);
       final signinRepository = SigninRepositoryImpl(
         userLocalDatasource: userLocalDatasource,
         userRemoteDatasource: userRemoteDatasource,
@@ -103,12 +114,13 @@ class _SigninPageState extends State<SigninPage> {
         if (state is SigninSuccess) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('successfully signed in'),
+              content: Text(state.message),
               backgroundColor: Colors.green,
               duration: const Duration(seconds: 2),
             ),
           );
-          Navigator.pushReplacementNamed(context, '/chat');
+
+          Navigator.pushReplacementNamed(context, '/retrieve');
         }
 
         if (state is SigninFailure) {
@@ -147,7 +159,7 @@ class _SigninPageState extends State<SigninPage> {
                         padding: EdgeInsets.all(8.0),
                         child: Center(
                           child: Text(
-                            'ECOM',
+                            "ECOM",
                             style: TextStyle(
                               color: Color.fromARGB(255, 15, 83, 201),
                               fontSize: 17,
@@ -162,7 +174,7 @@ class _SigninPageState extends State<SigninPage> {
 
                     // Title
                     const Text(
-                      'Sign into Your account',
+                      "Sign into Your account",
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: Colors.black,
@@ -182,7 +194,7 @@ class _SigninPageState extends State<SigninPage> {
                           children: [
                             // Email Section
                             const Text(
-                              'Email',
+                              "Email",
                               style: TextStyle(
                                 color: Colors.grey,
                                 fontSize: 17,
@@ -194,17 +206,17 @@ class _SigninPageState extends State<SigninPage> {
                               enabled: !isLoading,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return 'Please enter your email';
+                                  return "Please enter your email";
                                 }
                                 if (!RegExp(
                                   r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
                                 ).hasMatch(value)) {
-                                  return 'Please enter a valid email';
+                                  return "Please enter a valid email";
                                 }
                                 return null;
                               },
                               decoration: const InputDecoration(
-                                hintText: 'ex: haymi@gmail.com',
+                                hintText: "ex: haymi@gmail.com",
                                 hintStyle: TextStyle(color: Colors.grey),
                                 border: OutlineInputBorder(),
                                 contentPadding: EdgeInsets.symmetric(
@@ -218,7 +230,7 @@ class _SigninPageState extends State<SigninPage> {
 
                             // Password Section
                             const Text(
-                              'Password',
+                              "Password",
                               style: TextStyle(
                                 color: Colors.grey,
                                 fontSize: 17,
@@ -231,15 +243,15 @@ class _SigninPageState extends State<SigninPage> {
                               obscureText: !isPasswordVisible,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return 'Please enter your password';
+                                  return "Please enter your password";
                                 }
                                 if (value.length < 6) {
-                                  return 'Password must be at least 6 characters';
+                                  return "Password must be at least 6 characters";
                                 }
                                 return null;
                               },
                               decoration: InputDecoration(
-                                hintText: 'Enter your password',
+                                hintText: "Enter your password",
                                 hintStyle: const TextStyle(color: Colors.grey),
                                 border: const OutlineInputBorder(),
                                 contentPadding: const EdgeInsets.symmetric(
@@ -290,7 +302,7 @@ class _SigninPageState extends State<SigninPage> {
                                           strokeWidth: 2,
                                         )
                                         : const Text(
-                                          'SIGN IN',
+                                          "SIGN IN",
                                           style: TextStyle(
                                             fontSize: 17,
                                             fontWeight: FontWeight.bold,
@@ -314,12 +326,12 @@ class _SigninPageState extends State<SigninPage> {
                                             ? () {
                                               Navigator.pushNamed(
                                                 context,
-                                                '/sign-up',
+                                                '/signup',
                                               );
                                             }
                                             : null,
                                     child: const Text(
-                                      'SIGN UP',
+                                      "SIGN UP",
                                       style: TextStyle(
                                         color: Colors.blueAccent,
                                         fontWeight: FontWeight.bold,

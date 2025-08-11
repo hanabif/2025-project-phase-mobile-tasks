@@ -30,8 +30,13 @@ class SigninFailure extends SigninState {
 class SigninPasswordVisibilityToggled extends SigninState {
   final bool isPasswordVisible;
 
-  const SigninPasswordVisibilityToggled(this.isPasswordVisible);
+  const SigninPasswordVisibilityToggled({required this.isPasswordVisible});
 
+ SigninPasswordVisibilityToggled copyWith({
+    bool? isPasswordVisible
+  }){
+    return SigninPasswordVisibilityToggled(isPasswordVisible:isPasswordVisible??this.isPasswordVisible );
+  }
   @override
-  List<Object?> get props => [isPasswordVisible];
+  List<Object> get props => [isPasswordVisible,];
 }

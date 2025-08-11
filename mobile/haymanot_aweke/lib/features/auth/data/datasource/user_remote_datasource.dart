@@ -2,8 +2,8 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
-import '../model/signin_model.dart';
 import '../model/user_model.dart';
+
 
 abstract class UserRemoteDatasource {
   Future<UserModel> signUp(UserModel user);
@@ -20,18 +20,11 @@ class UserRemoteDatasourceImpl implements UserRemoteDatasource {
   @override
   Future<UserModel> signUp(UserModel user) async {
     try {
-      print(' Attempting signup to: $baseUrl/auth/register');
-      print(' Request body: ${json.encode(user.toJson())}');
-
       final response = await client.post(
         Uri.parse('$baseUrl/api/v2/auth/register'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode(user.toJson()),
       );
-
-      print(' Response status: ${response.statusCode}');
-      print(' Response body: ${response.body}');
-      print(' Response headers: ${response.headers}');
 
       if (response.statusCode == 201 || response.statusCode == 200) {
         final responseData = json.decode(response.body);
@@ -56,16 +49,16 @@ class UserRemoteDatasourceImpl implements UserRemoteDatasource {
   }
 
   @override
-  Future<String> signIn(UserModel user) async {
+  Future<String> signIn(UserModel userModel) async {
     try {
-      final body = user.toJson();
+      final requestBody = userModel.toJson();
       final response = await client.post(
-        Uri.parse('$baseUrl/api/v2/auth/login'),
+        Uri.parse('$baseUrl/api/v3/auth/login'),
         headers: {
           'Content-Type': 'application/json',
-          'Accept': 'applicaion/json',
+          'Accept': 'application/json',
         },
-        body: json.encode(body),
+        body: json.encode(requestBody),
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -73,11 +66,12 @@ class UserRemoteDatasourceImpl implements UserRemoteDatasource {
           final responseData = json.decode(response.body);
           final accessToken = responseData['data']['access_token'];
           if (accessToken == null || accessToken.toString().isEmpty) {
-            throw Exception('No access token found');
+            throw Exception('No access token found in response');
           }
+          print("Access token: $accessToken");
           return accessToken.toString();
         } catch (jsonError) {
-          throw Exception('invalid JSON: $jsonError');
+          throw Exception('Invalid JSON response: $jsonError');
         }
       } else {
         try {
@@ -85,7 +79,7 @@ class UserRemoteDatasourceImpl implements UserRemoteDatasource {
           final errorMessage =
               errorData['message'] ??
               errorData['error'] ??
-              'sign in failed with status ${response.statusCode}';
+              'Sign in failed with status ${response.statusCode}';
           throw Exception('Sign in failed: $errorMessage');
         } catch (jsonError) {
           throw Exception('Sign in failed with status ${response.statusCode}');

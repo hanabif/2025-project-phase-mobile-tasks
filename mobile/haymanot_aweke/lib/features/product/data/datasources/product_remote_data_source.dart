@@ -68,7 +68,7 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
         url,
         headers: {
           'Content-Type': 'application/json',
-          //'Authorization': 'Bearer $token',
+          'Authorization': 'Bearer $token',
         },
       );
       print('GET List ${url.toString()} → ${response.statusCode}');
@@ -93,16 +93,18 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
     try {
       //final token = _getToken();
       final uri = Uri.parse(
-        'https://g5-flutter-learning-path-be-tvum.onrender.com/api/v1/products',
+        'https://g5-flutter-learning-path-be-tvum.onrender.com/api/v2/products',
       );
-
+      final token = _getToken();
       final request =
           http.MultipartRequest('POST', uri)
             ..fields['name'] = product.name
             ..fields['description'] = product.description
             ..fields['price'] = product.price.toString();
-
       // ..headers['Authorization'] = 'Bearer $token';
+      if (token != null) {
+        request.headers['Authorization'] = 'Bearer $token';
+      }
       if (product.imageUrl.isNotEmpty &&
           !product.imageUrl.startsWith('http') &&
           File(product.imageUrl).existsSync()) {
@@ -162,7 +164,7 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
     try {
       final token = _getToken();
       final url = Uri.parse(
-        'https://g5-flutter-learning-path-be-tvum.onrender.com/api/v1/products/$id',
+        'https://g5-flutter-learning-path-be-tvum.onrender.com/api/v2/products/$id',
       );
 
       final response = await client.delete(
@@ -188,7 +190,7 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   @override
   Future<List<ProductModel>> getAllProducts() async {
     final url = Uri.parse(
-      'https://g5-flutter-learning-path-be-tvum.onrender.com/api/v1/products',
+      'https://g5-flutter-learning-path-be-tvum.onrender.com/api/v2/products',
     );
     final jsonList = await _getListFromUrl(url);
     return jsonList.map((jsonMap) => ProductModel.fromJson(jsonMap)).toList();
@@ -197,7 +199,7 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   @override
   Future<ProductModel> getProductById(String id) async {
     final url = Uri.parse(
-      'https://g5-flutter-learning-path-be-tvum.onrender.com/api/v1/products/$id',
+      'https://g5-flutter-learning-path-be-tvum.onrender.com/api/v2/products/$id',
     );
     final jsonMap = await _getJsonFromUrl(url);
     final data = jsonMap['data'] as Map<String, dynamic>;
@@ -209,7 +211,7 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
     try {
       final token = _getToken();
       final url = Uri.parse(
-        'https://g5-flutter-learning-path-be-tvum.onrender.com/api/v1/products/${product.id}',
+        'https://g5-flutter-learning-path-be-tvum.onrender.com/api/v2/products/${product.id}',
       );
 
       final body = json.encode({
