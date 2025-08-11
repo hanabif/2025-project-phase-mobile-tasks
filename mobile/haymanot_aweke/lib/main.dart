@@ -1,12 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'core/router/app_router.dart';
-import 'injection_container.dart' as di;
+import 'core/socket/socket_Service.dart';
+import 'features/auth/presentation/bloc/signin_bloc/signin_bloc.dart';
+import 'features/auth/presentation/bloc/signup_bloc/signup_bloc.dart';
+
 import 'features/product/presentation/bloc/product_bloc.dart';
+import 'injection_container.dart' as di;
+import 'package:get_it/get_it.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  print('Before di.init: ${di.sl.isRegistered<SocketService>()}');
   await di.init();
+  print('After di.init: ${di.sl.isRegistered<SocketService>()}');
+  
+
+  print('GetIt instance hashCode: ${GetIt.instance.hashCode}');
+
   runApp(const MyApp());
 }
 
@@ -17,10 +28,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider<ProductBloc>(
-          create: (_) => di.sl<ProductBloc>(),
-        ),
-        
+        BlocProvider<ProductBloc>(create: (_) => di.sl<ProductBloc>()),
+        BlocProvider<SigninBloc>(create: (_) => di.sl<SigninBloc>()),
+        BlocProvider<SignupBloc>(create: (_) => di.sl<SignupBloc>()),
       ],
       child: MaterialApp(
         title: 'eCommerce UI',

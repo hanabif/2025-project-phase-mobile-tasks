@@ -27,6 +27,7 @@ class SigninBloc extends Bloc<SigninEvent, SigninState> {
         final result = await signinUsecase.call(credentials);
         result.fold(
           (failure) {
+            print('Signin failed: $failure');
             emit(SigninFailure(message: 'Sign in failed. Please try again.'));
           },
           (signinResponse) {

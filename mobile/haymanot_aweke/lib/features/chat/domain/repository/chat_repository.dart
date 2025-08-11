@@ -1,19 +1,27 @@
 import 'package:dartz/dartz.dart';
+
 import '../../../../core/error/failure.dart';
-import '../../data/model/chat_model.dart';
+
 import '../entities/chat_entity.dart';
 import '../entities/chat_message_entity.dart';
 
+import '../entities/user.dart';
+
 abstract class ChatRepository {
-  Future<Either<Failure, List<ChatEntity>>> getAllChats();
-  Future<Either<Failure, List<ChatMessageEntity>>> getMessagesInChat(String chatId);
-  Future<ChatModel> getChatById(String chatId);
-  Future<Either<Failure, ChatMessageEntity>> sendMessage({
+  Future<Either<Failure, Chat>> createChatWithUser(String userId);
+  Future<Either<Failure, List<Chat>>> getMyChats();
+  Future<Either<Failure, Chat>> getChatById(String chatId);
+  Future<Either<Failure, List<Message>>> getChatMessages(String chatId);
+  Future<Either<Failure, void>> deleteChat(String chatId);
+  Future<Either<Failure, List<User>>> getAllUsers();
+
+  // Realtime
+  Future<void> connectSocket(String token);
+  Future<void> disconnectSocket();
+  Stream<Message> subscribeMessages(String chatId);
+  Future<Either<Failure, void>> sendMessage({
     required String chatId,
     required String content,
-    required String type,
+    String type = 'text',
   });
-
-  /// This is for receiving real-time messages via socket
-  Stream<ChatMessageEntity> receiveMessages();
 }

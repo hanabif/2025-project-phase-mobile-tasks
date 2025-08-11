@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../injection_container.dart';
+import '../../../../injection_container.dart' as di;
 import '../../domain/entities/product.dart';
 
 import '../bloc/product_bloc.dart';
@@ -48,7 +48,7 @@ class _DetailPageState extends State<DetailPage> {
     final product = widget.product;
 
     return BlocProvider(
-      create: (_) => sl<ProductBloc>(),
+      create: (_) =>di.sl<ProductBloc>(),
 
       child: BlocListener<ProductBloc, ProductState>(
         listener: (context, state) {

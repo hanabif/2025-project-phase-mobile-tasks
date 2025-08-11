@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../features/auth/presentation/bloc/signin_bloc/signin_bloc.dart';
 import '../../features/auth/presentation/pages/signin_screen.dart';
 import '../../features/auth/presentation/pages/signup_screen.dart';
 import '../../features/auth/presentation/pages/splash_screen.dart';
@@ -10,6 +12,7 @@ import '../../features/product/presentation/pages/add_update_page.dart';
 import '../../features/product/presentation/pages/detail_page.dart';
 import '../../features/product/presentation/pages/retrieve_all_products_page.dart';
 import '../../features/product/presentation/pages/search_page.dart';
+import '../../injection_container.dart' as di;
 
 class AppRouter {
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
@@ -22,22 +25,38 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => SignupScreen());
 
       case '/sign-in':
-        return MaterialPageRoute(builder: (_) => SigninPage());
+        return MaterialPageRoute(
+          builder:
+              (_) => BlocProvider(
+                create: (_) => di.sl<SigninBloc>(),
+                child: SigninPage(),
+              ),
+        );
 
       // -- CHAT SCREENS ---
       case '/chat':
         return MaterialPageRoute(builder: (_) => RecentChats());
 
       case '/chatDetail':
-        return MaterialPageRoute(builder: (_) => ChatDetailPage());
+        final args = settings.arguments as Map<String, dynamic>;
+        return MaterialPageRoute(
+          builder:
+              (_) => ChatDetailPage(
+                chatId: args['chatId'],
+                userName: args['userName'],
+                userInitials: args['userInitials'],
+                currentUserId: args['currentUserId'] ?? '',
+              ),
+        );
 
       // --- PRODUCT SCREENS ---
       case '/retrieve':
         return MaterialPageRoute(builder: (_) => RetrieveAllProductsPage());
 
-      
       case '/create':
-        return MaterialPageRoute(builder: (_) => AddUpdatePage(isEditing: false,));
+        return MaterialPageRoute(
+          builder: (_) => AddUpdatePage(isEditing: false),
+        );
 
       case '/details':
         final product = settings.arguments as Product;

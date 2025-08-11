@@ -28,10 +28,11 @@ class SigninRepositoryImpl implements SigninRepository {
     print('🏪 SigninRepository: Email: ${credentials.email}');
 
     try {
-      final isConnected = await networkInfo.isConnected;
-      if (!await isConnected) {
-        return Left(NetworkFailure());
-      }
+      // final isConnected = await networkInfo.isConnected;
+      // print('Repository: isConnected? $isConnected');
+      // if (!isConnected) {
+      //   return Left(NetworkFailure());
+      // }
     } catch (networkError) {
       print('SigninRepository: Network check failed: $networkError');
     }
@@ -45,8 +46,8 @@ class SigninRepositoryImpl implements SigninRepository {
       );
 
       final accessToken = await userRemoteDatasource.signIn(userModel);
-      await userLocalDatasource.saveToken(accessToken);
-      await userLocalDatasource.cacheUser(userModel);
+      print('SigninRepository: received access token: $accessToken');
+
       try {
         await userLocalDatasource.saveToken(accessToken);
       } catch (cacheError) {
@@ -56,32 +57,21 @@ class SigninRepositoryImpl implements SigninRepository {
       }
       print('🎉 SigninRepository: Signin process completed successfully!');
       return Right(accessToken);
-    } on SocketException catch (e) {
-      print('SigninRepository: SocketException details: $e');
-      return Left(NetworkFailure());
-    } on HttpException catch (e) {
-      return const Left(NetworkFailure());
     } on FormatException catch (e) {
       return const Left(ServerFailure());
-    } catch (e) {
-      final errorMessage = e.toString().toLowerCase();
-      if (errorMessage.contains('network error') ||
-          errorMessage.contains('connection') ||
-          errorMessage.contains('timeout') ||
-          errorMessage.contains('socket')) {
-        return const Left(NetworkFailure());
-      } else if (errorMessage.contains('invalid credentials') ||
-          errorMessage.contains('unauthorized') ||
-          errorMessage.contains('sign in failed') ||
-          errorMessage.contains('login failed') ||
-          errorMessage.contains('authentication failed')) {
-        return const Left(ServerFailure());
-      } else if (errorMessage.contains('user not found') ||
-          errorMessage.contains('account not found')) {
-        return const Left(ServerFailure());
-      } else {
-        return const Left(ServerFailure());
-      }
-    }
+    } 
+      // } if (errorMessage.contains('invalid credentials') ||
+      //     errorMessage.contains('unauthorized') ||
+      //     errorMessage.contains('sign in failed') ||
+      //     errorMessage.contains('login failed') ||
+      //     errorMessage.contains('authentication failed')) {
+      //   return const Left(ServerFailure());
+      // } else if (errorMessage.contains('user not found') ||
+      //     errorMessage.contains('account not found')) {
+      //   return const Left(ServerFailure());
+      // } else {
+      //   return const Left(ServerFailure());
+      // }
+    // }
   }
 }

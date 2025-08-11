@@ -1,51 +1,47 @@
-import 'package:equatable/equatable.dart';
+import 'package:dartz/dartz.dart';
 
+import '../../../../core/error/failure.dart';
 import '../../domain/entities/chat_entity.dart';
+import '../../domain/entities/chat_message_entity.dart';
+import '../../domain/entities/user.dart';
 
-abstract class ChatState extends Equatable {
-  const ChatState();
+abstract class ChatState {}
 
-  @override
-  List<Object?> get props => [];
-}
-
-class ChatInitial extends ChatState {
-  const ChatInitial();
-}
-
-class ChatLoading extends ChatState {
-  const ChatLoading();
-}
+class ChatLoading extends ChatState {}
 
 class ChatLoaded extends ChatState {
-  // final List<ChatEntity> chats;
+  final Either<Failure,List<Chat>> chats;
+  ChatLoaded(this.chats);
+}
 
-  // const ChatLoaded(this.chats, {required List<ChatEntity> chat});
+class MessagesLoaded extends ChatState {
+  final List<Message> messages;
+  MessagesLoaded(this.messages);
+}
 
-  // @override
-  // List<Object?> get props => [chats];
+class MessageSentSuccess extends ChatState {}
+
+class ChatCreated extends ChatState {
+  final Either<Failure,Chat> chat;
+  ChatCreated(this.chat);
+}
+
+class TypingState extends ChatState {
+  final String chatId;
+  final bool isTyping;
+  TypingState(this.chatId, this.isTyping);
 }
 
 class ChatError extends ChatState {
-  // final String message;
-
-  // const ChatError(this.message);
-
-  // @override
-  // List<Object?> get props => [message];
+  final String error;
+  ChatError(this.error);
 }
 
-class ChatSelected extends ChatState {
-  final String chatId;
-  final String userName;
-  final String userInitials;
+class UsersLoading extends ChatState {}
 
-  const ChatSelected({
-    required this.chatId,
-    required this.userName,
-    required this.userInitials,
-  });
-
-  @override
-  List<Object?> get props => [chatId, userName, userInitials];
+class UsersLoaded extends ChatState {
+  final Either<Failure, List<User>> users; 
+  UsersLoaded(this.users);
 }
+
+class ChatCreating extends ChatState {}

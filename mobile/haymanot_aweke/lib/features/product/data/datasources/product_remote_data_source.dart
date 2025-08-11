@@ -43,7 +43,7 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
         url,
         headers: {
           'Content-Type': 'application/json',
-          //'Authorization': 'Bearer $token',
+          'Authorization': 'Bearer $token',
         },
       );
       print('GET ${url.toString()} → ${response.statusCode}');
@@ -72,7 +72,7 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
         },
       );
       print('GET List ${url.toString()} → ${response.statusCode}');
-      print('Response body: ${response.body}');
+      // print('Response body: ${response.body}');
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> jsonResponse = json.decode(response.body);

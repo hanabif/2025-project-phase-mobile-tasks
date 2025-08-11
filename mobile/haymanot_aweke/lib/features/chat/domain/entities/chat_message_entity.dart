@@ -1,17 +1,13 @@
-import 'chat_entity.dart';
-import 'user_entity.dart';
-
-class ChatMessageEntity {
+class Message {
   final String id;
-  final UserEntity sender;
-  final ChatEntity chat;
+  final String chatId;
+  final String senderId;
   final String content;
-  final String type;
-
-  const ChatMessageEntity({
+  final String type; // 'text' etc.
+  Message({
     required this.id,
-    required this.sender,
-    required this.chat,
+    required this.chatId,
+    required this.senderId,
     required this.content,
     required this.type,
   });

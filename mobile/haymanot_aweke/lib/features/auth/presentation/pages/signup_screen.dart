@@ -6,12 +6,14 @@ import 'package:http/http.dart' as http;
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 
 import '../../../../core/network/network_info.dart';
+import '../../data/datasource/user_local_datasource.dart';
 import '../../data/datasource/user_remote_datasource.dart';
 import '../../data/repository/signup_repository_impl.dart';
 import '../../domain/usecases/signup.dart';
 import '../bloc/signup_bloc/signup_bloc.dart';
 import '../bloc/signup_bloc/signup_event.dart';
 import '../bloc/signup_bloc/signup_state.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -69,6 +71,11 @@ class _SignupScreenState extends State<SignupScreen> {
 
       final networkInfo = NetworkInfoImpl(connectionChecker: connectivity);
 
+      final sharedPreferences = await SharedPreferences.getInstance();
+      final userLocalDatasource = UserLocalDatasourceImpl(
+        sharedPreferences: sharedPreferences, client: httpClient,
+       
+      );
       final userRemoteDatasource = UserRemoteDatasourceImpl(client: httpClient);
 
       final signupRepository = SignupRepositoryImpl(

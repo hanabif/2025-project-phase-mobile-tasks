@@ -3,9 +3,6 @@ import 'package:equatable/equatable.dart';
 import '../../features/product/domain/entities/product.dart';
 
 
-
-
-
 class NoParams extends Equatable {
   @override
   List<Object?> get props => [];

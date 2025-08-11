@@ -62,7 +62,7 @@ class ProductRepositoryImpl implements ProductRepository {
 
   @override
   Future<Either<Failure, List<Product>>> getAllProducts() async {
-    if (await networkInfo.isConnected) {
+    // if (await networkInfo.isConnected) {
       try {
         print('Fetching all products from remote');
         final remoteProducts = await remoteDataSource.getAllProducts();
@@ -72,16 +72,16 @@ class ProductRepositoryImpl implements ProductRepository {
         print('Get all products failed: $e');
         return Left(ServerFailure());
       }
-    } else {
-      try {
-        print('Fetching products from cache');
-        final localProducts = await localDataSource.getLastProductList();
-        return Right(localProducts);
-      } on CacheException catch (e) {
-        print('Get all products from cache failed: $e');
-        return Left(CacheFailure());
-      }
-    }
+    // } else {
+    //   try {
+    //     print('Fetching products from cache');
+    //     final localProducts = await localDataSource.getLastProductList();
+    //     return Right(localProducts);
+    //   } on CacheException catch (e) {
+    //     print('Get all products from cache failed: $e');
+    //     return Left(CacheFailure());
+    //   }
+    // }
   }
 
   @override

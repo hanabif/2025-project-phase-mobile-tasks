@@ -1,310 +1,128 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-class ChatDetailPage extends StatelessWidget {
-  const ChatDetailPage({super.key});
+import '../../../../injection_container.dart' as di;
+import '../../domain/entities/chat_message_entity.dart';
+import '../bloc/chat_bloc.dart';
+import '../bloc/chat_event.dart';
+import '../bloc/chat_state.dart';
+import '../widgets/receiver_bubble.dart';
+import '../widgets/sender_bubble.dart';
+
+class ChatDetailPage extends StatefulWidget {
+  final String chatId;
+  final String userName;
+  final String userInitials;
+  final String currentUserId;
+
+  const ChatDetailPage({
+    Key? key,
+    required this.chatId,
+    required this.userName,
+    required this.userInitials,
+    required this.currentUserId,
+  }) : super(key: key);
+
+  @override
+  State<ChatDetailPage> createState() => _ChatDetailPageState();
+}
+
+class _ChatDetailPageState extends State<ChatDetailPage> {
+  final TextEditingController _messageController = TextEditingController();
+
+  late final ChatBloc chatBloc;
+
+  @override
+  void initState() {
+    super.initState();
+    // Get the existing ChatBloc from DI container or context
+    chatBloc = di.sl<ChatBloc>();
+    // Load chat messages for this chat
+    chatBloc.add(LoadMessages(chatId: widget.chatId));
+  }
+
+  @override
+  void dispose() {
+    _messageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Column(
+    return BlocProvider.value(
+      value: chatBloc,
+      child: Scaffold(
+        appBar: AppBar(title: Text(widget.userName)),
+        body: Column(
           children: [
-            // Top bar
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: Row(
-                children: [
-                  IconButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    icon: Icon(Icons.arrow_back),
-                  ),
-                  const SizedBox(width: 10),
-                  CircleAvatar(
-                    backgroundColor: Colors.pink[200],
-                    radius: 22,
-                    child: const Icon(Icons.thumb_up, color: Colors.black),
-                  ),
-                  const SizedBox(width: 10),
-                  const Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Sabila Sayma',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                        Text(
-                          '8 members, 5 online',
-                          style: TextStyle(color: Colors.grey, fontSize: 12),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const Icon(Icons.call, size: 24),
-                  const SizedBox(width: 16),
-                  const Icon(Icons.videocam, size: 24),
-                ],
-              ),
-            ),
-            const Divider(height: 1),
-            const SizedBox(height: 10),
-
-            // Messages area
             Expanded(
-              child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                children: [
-                  // Message 1
-                  _buildSenderBubble(
-                    name: 'Annei Ellison',
-                    text: 'Have a great working week!!',
-                    time: '09:25 AM',
-                  ),
+              child: BlocBuilder<ChatBloc, ChatState>(
+                builder: (context, state) {
+                  if (state is ChatLoading) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (state is MessagesLoaded) {
+                    final messages = state.messages;
+                    return ListView.builder(
+                      reverse: true,
+                      itemCount: messages.length,
+                      itemBuilder: (context, index) {
+                        final msg = messages[index];
+                        final isSender = msg.senderId == widget.currentUserId;
 
-                  _buildSenderBubble(
-                    name: 'Annei Ellison',
-                    text: 'This is my new 3d design',
-                    time: '',
-                  ),
-
-                  _buildImageMessage(
-                    imageUrl:
-                        'https://via.placeholder.com/200x140.png?text=3D+Design',
-                    time: '09:25 AM',
-                  ),
-
-                  _buildReceiverBubble(
-                    text: 'You did your job well!',
-                    time: '09:25 AM',
-                  ),
-
-                  _buildSenderVoiceMessage(
-                    name: 'Annei Ellison',
-                    duration: '00:16',
-                    time: '09:25 AM',
-                  ),
-
-                  _buildReceiverBubble(
-                    text: 'You did your job well!',
-                    time: '09:25 AM',
-                  ),
-                ],
+                        if (isSender) {
+                          return SenderBubble(
+                            name: 'you',
+                            text: msg.content,
+                            avatarUrl: null,
+                          );
+                        } else {
+                          return ReceiverBubble(text: msg.content);
+                        }
+                      },
+                    );
+                  } else if (state is ChatError) {
+                    return Center(child: Text(state.error));
+                  }
+                  return const SizedBox.shrink();
+                },
               ),
             ),
-
-            // Bottom Input Bar
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              decoration: BoxDecoration(
-                border: Border(top: BorderSide(color: Colors.grey.shade200)),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.attach_file, color: Colors.grey),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF3F3F3),
-                        borderRadius: BorderRadius.circular(25),
-                      ),
-                      child: const TextField(
-                        decoration: InputDecoration(
-                          hintText: 'Write your message',
-                          border: InputBorder.none,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  const Icon(Icons.camera_alt_outlined, color: Colors.grey),
-                  const SizedBox(width: 8),
-                  const Icon(Icons.mic_none, color: Colors.grey),
-                ],
-              ),
-            ),
+            _buildMessageInput(context),
           ],
         ),
       ),
     );
   }
 
-  // Sender text bubble
-  Widget _buildSenderBubble({
-    required String name,
-    required String text,
-    required String time,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            CircleAvatar(
-              backgroundColor: Colors.pink[200],
-              radius: 20,
-              child: const Icon(Icons.thumb_up),
-            ),
-            const SizedBox(width: 8),
-            Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
-          ],
-        ),
-        const SizedBox(height: 6),
-        Container(
-          margin: const EdgeInsets.only(left: 48),
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: const Color(0xFFF3F8FD),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Text(text),
-        ),
-        if (time.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.only(left: 48, top: 4),
-            child: Text(
-              time,
-              style: const TextStyle(color: Colors.grey, fontSize: 12),
-            ),
-          ),
-        const SizedBox(height: 14),
-      ],
-    );
-  }
-
-  // Receiver text bubble
-  Widget _buildReceiverBubble({required String text, required String time}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Text('You', style: const TextStyle(fontWeight: FontWeight.bold)),
-            const SizedBox(width: 8),
-            CircleAvatar(
-              backgroundColor: Colors.purple[200],
-              radius: 20,
-              child: const Icon(Icons.person),
-            ),
-          ],
-        ),
-        const SizedBox(height: 6),
-        Container(
-          margin: const EdgeInsets.only(left: 80),
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: const Color(0xFF5A68F2),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Text(text, style: const TextStyle(color: Colors.white)),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(top: 4),
-          child: Text(
-            time,
-            style: const TextStyle(color: Colors.grey, fontSize: 12),
-          ),
-        ),
-        const SizedBox(height: 14),
-      ],
-    );
-  }
-
-  // Image message
-  Widget _buildImageMessage({required String imageUrl, required String time}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          margin: const EdgeInsets.only(left: 48, top: 8),
-          height: 140,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            image: DecorationImage(
-              image: NetworkImage(imageUrl),
-              fit: BoxFit.cover,
-            ),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 48, top: 4),
-          child: Text(
-            time,
-            style: const TextStyle(color: Colors.grey, fontSize: 12),
-          ),
-        ),
-        const SizedBox(height: 14),
-      ],
-    );
-  }
-
-  // Voice message
-  Widget _buildSenderVoiceMessage({
-    required String name,
-    required String duration,
-    required String time,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            CircleAvatar(
-              backgroundColor: Colors.pink[200],
-              radius: 20,
-              child: const Icon(Icons.thumb_up),
-            ),
-            const SizedBox(width: 8),
-            Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
-          ],
-        ),
-        const SizedBox(height: 6),
-        Container(
-          margin: const EdgeInsets.only(left: 48),
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: const Color(0xFFF3F8FD),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Row(
-            children: [
-              const Icon(Icons.play_arrow, color: Colors.deepPurple),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Container(
-                  height: 20,
-                  decoration: const BoxDecoration(
-                    image: DecorationImage(
-                      image: NetworkImage(
-                        'https://i.imgur.com/O5p3W8F.png',
-                      ), // placeholder waveform
-                      fit: BoxFit.fitWidth,
-                    ),
-                  ),
-                ),
+  Widget _buildMessageInput(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(8),
+      child: Row(
+        children: [
+          Expanded(
+            child: TextField(
+              controller: _messageController,
+              decoration: const InputDecoration(
+                hintText: "Type your message...",
+                border: OutlineInputBorder(),
               ),
-              const SizedBox(width: 8),
-              Text(duration, style: const TextStyle(fontSize: 12)),
-            ],
+            ),
           ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 48, top: 4),
-          child: Text(
-            time,
-            style: const TextStyle(color: Colors.grey, fontSize: 12),
+          const SizedBox(width: 8),
+          IconButton(
+            icon: const Icon(Icons.send),
+            onPressed: () {
+              final text = _messageController.text.trim();
+              if (text.isNotEmpty) {
+                context.read<ChatBloc>().add(
+                  SendMessageEvent(widget.chatId, text),
+                );
+                _messageController.clear();
+              }
+            },
           ),
-        ),
-        const SizedBox(height: 14),
-      ],
+        ],
+      ),
     );
   }
 }
